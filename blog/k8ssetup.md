@@ -1,4 +1,4 @@
-![Kubernetes](k8slogo.jpg)
+![Kubernetes](k8slogo.png)
 # Kubernetes cluster lab with ubuntu 18.04
 
 **Step to follow on all nodes**
