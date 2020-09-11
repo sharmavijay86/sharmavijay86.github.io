@@ -167,4 +167,8 @@ chown -R www-data:www-data /var/www/html
 access url now with /setup
 use same database entry as given above in mysql
 
-Done enjoy
+Done enjoy!   
+
+#### replication on master slave for powerdns   
+
+powerdns uses mysql as backend in above example hence do all settings on slave server just like above except mysql database. Instead folow guide to [perform mysql database replication](mysqlrep.html)
