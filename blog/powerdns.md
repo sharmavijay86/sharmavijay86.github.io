@@ -79,8 +79,7 @@ gmysql-password=pdns
 gmysql-dnssec=no
 ```   
 save and exit    
-```
-restgart services    
+restart services    
 ```
 systemctl restart pdns
 systemctl restart pdns-recursor
@@ -91,7 +90,7 @@ Lets tune some mysql entries for more read request
 vim /etc/mysql/mysql.conf.d/mysqld.cnf
 
 
-# InnoDB
+--- InnoDB section
 innodb_log_file_size = 64M
 default-storage-engine=INNODB
 innodb_buffer_pool_size=1G
