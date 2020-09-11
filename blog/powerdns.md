@@ -171,4 +171,4 @@ Done enjoy!
 
 #### replication on master slave for powerdns   
 
-powerdns uses mysql as backend in above example hence do all settings on slave server just like above except mysql database. Instead folow guide to [perform mysql database replication](mysqlrep.html)
+powerdns uses mysql as backend in above example hence do all settings on slave server just like above except mysql database. Instead folow guide to [perform mysql database replication](mysqlrep.md)
