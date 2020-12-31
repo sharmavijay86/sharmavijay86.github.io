@@ -11,7 +11,7 @@ apt install nginx -y
 Once the installation is completed, you can verify the installed version of Nginx with the following command:
 ```
 nginx -v
-``
+```
 You should see the Nginx version in the following output:
 ```
 nginx version: nginx/1.18.0 (Ubuntu)
@@ -54,7 +54,7 @@ Next, compile the ngx_pagespeed module with the following command:
 Next, run the following command to build the Pagespeed module:
 ```
 make modules
-``
+```
 Now copy the compiled module
 ```
 cp objs/ngx_pagespeed.so /usr/share/nginx/modules/
