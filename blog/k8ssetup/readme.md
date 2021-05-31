@@ -46,3 +46,8 @@ sudo sysctl --system
 ```
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 ```
+## Setup ingres as nginx
+ - Daemonset
+ ``` helm install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress --create-namespace=true --set controller.kind=DaemonSet ```
+ - Deployment
+ `` helm install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress --create-namespace=true ```
