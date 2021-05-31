@@ -12,7 +12,18 @@
 ```$ sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"```
 
 ```$ sudo apt install kubelet=1.19.0-00 kubeadm=1.19.0-00 kubectl=1.19.0-00 -y```
+```
+sudo modprobe overlay
+sudo modprobe br_netfilter
 
+sudo tee /etc/sysctl.d/kubernetes.conf<<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
+
+sudo sysctl --system
+```
 
 **step on master node**
 
