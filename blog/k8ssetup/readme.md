@@ -1,21 +1,17 @@
 ![Kubernetes](k8slogo.png)
-# Kubernetes cluster lab with ubuntu 18.04
+# Kubernetes cluster lab with ubuntu 20.04
 
 **Step to follow on all nodes**
 
 ```$ sudo apt-get update```
 
-```$ sudo apt-get install docker.io -y```
-
-```$ sudo systemctl enable docker```
-
-```$ sudo systemctl start docker```
+```$ sudo apt-get install containerd -y```
 
 ```$ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add```
 
 ```$ sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"```
 
-```$ sudo apt install kubeadm -y```
+```$ sudo apt install kubelet=1.19.0-00 kubeadm=1.19.0-00 kubectl=1.19.0-00 -y```
 
 
 **step on master node**
@@ -36,3 +32,6 @@
 **deploy a pod network plugin ( on master node )**
 
 ```$ sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml```
+```
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+```
