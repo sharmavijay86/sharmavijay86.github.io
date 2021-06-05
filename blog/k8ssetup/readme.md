@@ -101,3 +101,11 @@ helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
     --set nfs.server=192.168.1.11 \
     --set nfs.path=/k8snfs/nfs
 ```
+If you wish to set the storage class as default as well Then upgrade the chart
+```
+helm upgrade nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner     \
+     --namespace=kube-system    \
+     --set nfs.server=192.168.1.11  \
+     --set nfs.path=/k8snfs/nfs  \
+     --set storageClass.defaultClass=true
+ ```
