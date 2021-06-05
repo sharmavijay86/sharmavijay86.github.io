@@ -49,6 +49,38 @@ sudo sysctl --system
 ```
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 ```
+ 
+ ### Setup of metal LB (Optional)
+Apply deployment manifests-
+```
+kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/namespace.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/metallb.yaml
+kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
+```
+Create yaml for ip pool 
+```
+vim ip-pool.yaml
+```
+Apply the ip pool for LB. Create and modify values based on your network.
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
+      - 192.168.122.20-192.168.122.30
+```
+Apply
+```
+kubectl apply -f ip-pool.yaml
+```
 ## Setup ingres as nginx
  - Daemonset
  ``` 
