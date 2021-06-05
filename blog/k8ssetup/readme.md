@@ -84,9 +84,20 @@ kubectl apply -f ip-pool.yaml
 ## Setup ingres as nginx
  - Daemonset
  ``` 
- helm install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress --create-namespace=true --set controller.kind=DaemonSet,controller.service.enabled=false,controller.hostNetwork=true,controller.publishService.enabled=false
+ helm install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress --create-namespace=true \
+    --set controller.kind=DaemonSet,controller.service.enabled=false \
+    --set controller.hostNetwork=true,controller.publishService.enabled=false
  ```
  - Deployment
  ```
  helm install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress --create-namespace=true 
  ```
+
+## NFS dynamic provisioner setup ( Helm Chart )
+```
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+    --namespace=kube-system \
+    --set nfs.server=192.168.1.11 \
+    --set nfs.path=/k8snfs/nfs
+```
