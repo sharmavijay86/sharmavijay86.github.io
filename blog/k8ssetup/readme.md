@@ -109,3 +109,9 @@ helm upgrade nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
      --set nfs.path=/k8snfs/nfs  \
      --set storageClass.defaultClass=true
  ```
+## Setup Cert-manager
+```
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
+```
+#### LE Cluster issuer
+```
