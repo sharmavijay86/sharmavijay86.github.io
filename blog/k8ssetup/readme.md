@@ -6,25 +6,38 @@ If you are using this cloud-init user data file on ubuntu 20.04 it will setup al
 <script src="https://gist.github.com/sharmavijay86/cf86ca128a166ddd456bf0be1b95e2a6.js"></script>
 **Step to follow on all nodes**
 
-``` sudo apt-get update```
+```
+sudo apt-get update
+```
 
-``` sudo apt-get install containerd -y```
+```
+sudo apt-get install containerd -y
+```
 
-``` curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add```
+```
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
+```
 
-``` sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"```
+```
+sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+```
 
-``` sudo apt install kubelet=1.24.7-00 kubeadm=1.24.7-00 kubectl=1.24.7-00 -y```
+```
+sudo apt install kubelet=1.24.7-00 kubeadm=1.24.7-00 kubectl=1.24.7-00 -y
+```
+
 ```
 sudo modprobe overlay
 sudo modprobe br_netfilter
-
+```
+```
 sudo tee /etc/sysctl.d/kubernetes.conf<<EOF
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 net.ipv4.ip_forward = 1
 EOF
-
+```
+```
 sudo sysctl --system
 ```
 
@@ -112,6 +125,4 @@ helm upgrade nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
 ## Setup Cert-manager
 ```
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
-```
-#### LE Cluster issuer
 ```
