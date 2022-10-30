@@ -14,7 +14,7 @@ If you are using this cloud-init user data file on ubuntu 20.04 it will setup al
 
 ``` sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"```
 
-``` sudo apt install kubelet=1.19.0-00 kubeadm=1.19.0-00 kubectl=1.19.0-00 -y```
+``` sudo apt install kubelet=1.24.7-00 kubeadm=1.24.7-00 kubectl=1.24.7-00 -y```
 ```
 sudo modprobe overlay
 sudo modprobe br_netfilter
