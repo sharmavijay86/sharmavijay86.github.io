@@ -128,3 +128,8 @@ helm upgrade nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
 ```
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
 ```
+
+## Setup metrics-server  
+```
+kubectl apply https://raw.githubusercontent.com/sharmavijay86/sharmavijay86.github.io/master/blog/k8ssetup/components.yaml
+```
