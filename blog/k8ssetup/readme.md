@@ -96,6 +96,11 @@ Apply
 ```
 kubectl apply -f ip-pool.yaml
 ```
+## Install/enable helm binary 
+```
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+sudo bash get_helm.sh
+```
 ## Setup ingres as nginx
  - Daemonset
  ``` 
