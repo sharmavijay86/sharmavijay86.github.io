@@ -131,5 +131,5 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3
 
 ## Setup metrics-server  
 ```
-kubectl apply https://raw.githubusercontent.com/sharmavijay86/sharmavijay86.github.io/master/blog/k8ssetup/components.yaml
+kubectl apply -f https://raw.githubusercontent.com/sharmavijay86/sharmavijay86.github.io/master/blog/k8ssetup/components.yaml
 ```
