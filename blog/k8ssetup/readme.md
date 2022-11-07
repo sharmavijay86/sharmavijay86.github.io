@@ -104,13 +104,13 @@ sudo bash get_helm.sh
 ## Setup ingres as nginx
  - Daemonset
  ``` 
- helm install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress --create-namespace=true \
+ helm install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress --repo https://kubernetes.github.io/ingress-nginx --create-namespace=true \
     --set controller.kind=DaemonSet,controller.service.enabled=false \
     --set controller.hostNetwork=true,controller.publishService.enabled=false
  ```
  - Deployment
  ```
- helm install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress --create-namespace=true 
+ helm install ingress-nginx ingress-nginx/ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace=ingress --create-namespace=true 
  ```
 
 ## NFS dynamic provisioner setup ( Helm Chart )
