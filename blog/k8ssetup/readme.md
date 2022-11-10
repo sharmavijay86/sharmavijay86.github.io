@@ -138,3 +138,12 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3
 ```
 kubectl apply -f https://raw.githubusercontent.com/sharmavijay86/sharmavijay86.github.io/master/blog/k8ssetup/components.yaml
 ```
+## Setup the EFK (elastic search fluentbit & kibana) stack with helm chart
+
+```
+kubectl create ns logging
+helm upgrade --install fluent-bit fluent-bit --repo=https://fluent.github.io/helm-charts
+helm upgrade --install elasticsearch elasticsearch --set=replicas=3,minimumMasterNodes=1,resources.requests.cpu=100m,resources.requests.memory=1Gi,volumeClaimTemplate.resources.requets.storage=5Gi, --repo=https://helm.elastic.co -n logging
+
+helm upgrade --install kibana kibana --set=resources.requests.cpu=100m,resources.requests.memory=500Mi,ingress.enabled=true,ingress.annotations."cert-manager\.io\/cluster-issuer"=letsencrypt-staging,ingress.hosts[0].host=kibana.k8s.mevijay.dev,ingress.hosts[0].paths[0].path=/,ingress.tls[0].secretName=kibana-tls,ingress.tls[0].hosts[0]=kibana.k8s.mevijay.dev --repo=https://helm.elastic.co -n logging
+```
