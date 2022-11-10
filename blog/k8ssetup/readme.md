@@ -131,7 +131,7 @@ helm upgrade nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
  ```
 ## Setup Cert-manager
 ```
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.yaml
 ```
 
 ## Setup metrics-server  
