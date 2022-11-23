@@ -1,0 +1,31 @@
+ingress:
+  enabled: true
+  annotations: 
+     kubernetes.io/ingress.class: nginx
+     cert-manager.io/cluster-issuer: letsencrypt-staging
+  hosts:
+    - grafana.k8s.mevijay.dev
+  tls: 
+    - secretName: grafana-tls
+      hosts:
+        - grafana.k8s.mevijay.dev
+persistence:
+  enabled: true
+  # storageClassName: default
+  size: 1Gi
+adminUser: admin
+adminPassword: redhat123
+datasources: 
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-server
+      access: proxy
+      isDefault: true
+dashboards: 
+  default:
+    kube-dashboard:
+       file: https://grafana.com/api/dashboards/315/revisions/3/download
+

@@ -1,0 +1,36 @@
+
+imagePullSecrets:
+# - name: "image-pull-secret"
+alertmanager:
+  ingress:
+    enabled: true
+    annotations: 
+       kubernetes.io/ingress.class: nginx
+       cert-manager.io/cluster-issuer: letsencrypt-staging
+    hosts: 
+       - alertmanager.k8s.mevijay.dev
+    tls: 
+       - secretName: alertmgr-alerts-tls
+         hosts:
+           - alertmanager.k8s.mevijay.dev
+  persistentVolume:
+    size: 2Gi
+    # storageClass: "-"
+
+server:
+  ingress:
+    enabled: true
+    annotations: 
+       kubernetes.io/ingress.class: nginx
+       cert-manager.io/cluster-issuer: letsencrypt-staging
+    hosts: 
+       - prometheus.k8s.mevijay.dev
+    tls: 
+       - secretName: prometheus-alerts-tls
+         hosts:
+           - prometheus.k8s.mevijay.dev
+  persistentVolume:
+    enabled: true
+    size: 8Gi
+    # storageClass: "-"
+
