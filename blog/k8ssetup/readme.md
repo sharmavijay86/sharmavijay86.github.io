@@ -104,24 +104,25 @@ sudo bash get_helm.sh
 ## Setup ingres as nginx
  - Daemonset
  ``` 
- helm install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress --repo https://kubernetes.github.io/ingress-nginx --create-namespace=true \
+ helm install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --create-namespace=true \
     --set controller.kind=DaemonSet,controller.service.enabled=false \
-    --set controller.hostNetwork=true,controller.publishService.enabled=false
+    --set controller.hostNetwork=true,controller.publishService.enabled=false --namespace=ingress 
  ```
  - Deployment
  ```
- helm install ingress-nginx ingress-nginx/ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace=ingress --create-namespace=true 
+ helm install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace=ingress --create-namespace=true 
  ```
 
 ## NFS dynamic provisioner setup ( Helm Chart )
 ```
-helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+helm repo add nfs-subdir-external-provisioner  https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner   
+
 helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
     --namespace=kube-system \
     --set nfs.server=192.168.1.11 \
     --set nfs.path=/k8snfs/nfs
 ```
-If you wish to set the storage class as default as well Then upgrade the chart
+- If you wish to set the storage class as default as well Then upgrade the chart
 ```
 helm upgrade nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner     \
      --namespace=kube-system    \
