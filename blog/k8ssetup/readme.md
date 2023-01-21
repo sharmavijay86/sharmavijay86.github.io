@@ -149,6 +149,18 @@ helm upgrade --install elasticsearch elasticsearch --set=replicas=3,minimumMaste
 helm upgrade --install kibana kibana --set=resources.requests.cpu=100m,resources.requests.memory=500Mi,ingress.enabled=true,ingress.annotations."cert-manager\.io\/cluster-issuer"=letsencrypt-staging,ingress.hosts[0].host=kibana.k8s.mevijay.dev,ingress.hosts[0].paths[0].path=/,ingress.tls[0].secretName=kibana-tls,ingress.tls[0].hosts[0]=kibana.k8s.mevijay.dev --repo=https://helm.elastic.co -n logging
 ```
 
+## Dynamic storage provisioning
+For the dynamic provisioning we need a storage class and rancher have the answer for this lab.
+### Setup the provisioner 
+```
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.23/deploy/local-path-storage.yaml
+```
+Create a pvc and pod
+```
+kubectl create -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/examples/pvc/pvc.yaml
+kubectl create -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/examples/pod/pod.yaml
+```
+
 ## Setup monitoring with prometheus and grafana
 
 - Download the hlem chart values.yaml file for both grafana and prometheus.   
