@@ -10,6 +10,11 @@ If you are using this cloud-init user data file on ubuntu 20.04 it will setup al
 sudo apt-get update
 sudo apt-get upgrade
 ```
+To turn off swap space, if it is enabled 
+```
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+sudo swapoff -a
+```
 To install containerd.
 ```
 sudo apt install containerd -y
