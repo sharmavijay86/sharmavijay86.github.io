@@ -22,9 +22,13 @@ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
 ```
 sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 ```
-
+Specific version install
 ```
-sudo apt install kubelet=1.24.7-00 kubeadm=1.24.7-00 kubectl=1.24.7-00 -y
+sudo apt install kubelet=1.23.5-00 kubeadm=1.23.5-00 kubectl=1.23.5-00 -y
+```
+Latest version
+```
+sudo apt install kubelet kubeadm kubectl -y
 ```
 
 ```
