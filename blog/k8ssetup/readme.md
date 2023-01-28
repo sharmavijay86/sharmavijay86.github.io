@@ -15,11 +15,16 @@ To turn off swap space, if it is enabled
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 sudo swapoff -a
 ```
-To install containerd.
+You have 2 diffrent CRI options to use:   
+- containerd
+- cri-o   
+
+Bellow are steps to install either of one.   
+### To install containerd.
 ```
 sudo apt install containerd -y
 ```
-To install CRIO
+### To install CRIO
 ```
 sudo apt update
 sudo apt install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
@@ -34,9 +39,8 @@ sudo apt install -y cri-o cri-o-runc
 sudo systemctl daemon-reload
 sudo systemctl enable crio
 sudo systemctl start crio
-sudo systemctl status crio
 ```
-
+### Enable kube adm repository
 ```
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
 ```
@@ -44,11 +48,11 @@ curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
 ```
 sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 ```
-Specific version install
+If we want to install specific version of k8s, use bellow command. Just replace the version from 1.23.5-00 to other.
 ```
 sudo apt install kubelet=1.23.5-00 kubeadm=1.23.5-00 kubectl=1.23.5-00 -y
 ```
-Latest version
+For latest version, to install, use bellow.
 ```
 sudo apt install kubelet kubeadm kubectl -y
 ```
@@ -68,48 +72,47 @@ EOF
 sudo sysctl --system
 ```
 
-**step on master node**
+## Step on master nodes
 
+We can initialize master node with difrent options:   
+- Standard install with defined pod-cidr
 ```
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16
 ```
-To install with specific CRI socket
+- To install with specific CRI socket, in case cri-o.
 ```
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --cri-socket unix:///var/run/crio/crio.sock
 ```
 
-
+To enable the kubectl admin context.
 ``` 
 mkdir -p $HOME/.kube
-```
-
-```
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-```
-
-```
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 
-**join worker node ( step on worker node )**
+## Join worker node ( step on worker node )
 
-With specific CRI
-``` kubeadm join 192.168.122.220:6443 --token gefqt9.oj3kcgubehofxbz8  --discovery-token-ca-cert-hash sha256:a79789ade9c95182522f55b1ab17e93cd6eac9c7eaf8b7b67a6c125bbb5f50ce  --cri-socket unix:///var/run/crio/crio.sock
+- With specific CRI
+``` 
+sudo kubeadm join 192.168.122.220:6443 --token gefqt9.oj3kcgubehofxbz8  --discovery-token-ca-cert-hash sha256:a79789ade9c95182522f55b1ab17e93cd6eac9c7eaf8b7b67a6c125bbb5f50ce  --cri-socket unix:///var/run/crio/crio.sock
+```
+- With standard option.
+``` 
+sudo kubeadm join 192.168.122.220:6443 --token gefqt9.oj3kcgubehofxbz8  --discovery-token-ca-cert-hash sha256:a79789ade9c95182522f55b1ab17e93cd6eac9c7eaf8b7b67a6c125bbb5f50ce  
 ```
 
-``` kubeadm join 192.168.122.220:6443 --token gefqt9.oj3kcgubehofxbz8  --discovery-token-ca-cert-hash sha256:a79789ade9c95182522f55b1ab17e93cd6eac9c7eaf8b7b67a6c125bbb5f50ce  
-```
-
-**deploy a pod network plugin ( on master node )**
-
+## Deploy a pod network plugin ( on master node )
+- Flannel install
 ``` 
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 ```
+- Weavnet install
 ```
 kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
 ```
  
- ### Setup of metal LB (Optional)
+ ## Setup of metal LB (Optional)
 Apply deployment manifests-
 ```
 kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system
