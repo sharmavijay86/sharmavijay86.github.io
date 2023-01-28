@@ -4,7 +4,8 @@
 ### Cloud-init-config
 If you are using this cloud-init user data file on ubuntu 20.04 it will setup all prerequisite including. apt repo, kernel parameter, kubeadm. Just change the desired kubernetes version.
 <script src="https://gist.github.com/sharmavijay86/cf86ca128a166ddd456bf0be1b95e2a6.js"></script>
-**Step to follow on all nodes**
+
+### Step to follow on all nodes
 
 ```
 sudo apt-get update
