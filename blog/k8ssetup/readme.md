@@ -10,9 +10,26 @@ If you are using this cloud-init user data file on ubuntu 20.04 it will setup al
 sudo apt-get update
 sudo apt-get upgrade
 ```
-
+To install containerd.
 ```
 sudo apt install containerd -y
+```
+To install CRIO
+```
+sudo apt update
+sudo apt install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
+export OS_VERSION=xUbuntu_20.04
+export CRIO_VERSION=1.23
+curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS_VERSION/Release.key | sudo gpg --dearmor -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS_VERSION/Release.key | sudo gpg --dearmor -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS_VERSION/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS_VERSION/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
+sudo apt update
+sudo apt install -y cri-o cri-o-runc
+sudo systemctl daemon-reload
+sudo systemctl enable crio
+sudo systemctl start crio
+sudo systemctl status crio
 ```
 
 ```
@@ -49,6 +66,11 @@ sudo sysctl --system
 **step on master node**
 
 ``` sudo kubeadm init --pod-network-cidr=10.244.0.0/16```
+To install with specific CRI socket
+```
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --cri-socket unix:///var/run/crio/crio.sock
+```
+```
 
 ``` mkdir -p $HOME/.kube```
 
