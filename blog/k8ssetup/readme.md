@@ -8,10 +8,11 @@ If you are using this cloud-init user data file on ubuntu 20.04 it will setup al
 
 ```
 sudo apt-get update
+sudo apt-get upgrade
 ```
 
 ```
-sudo apt-get install containerd -y
+sudo apt install containerd -y
 ```
 
 ```
