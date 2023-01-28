@@ -170,7 +170,8 @@ helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
     --set nfs.server=192.168.1.11 \
     --set nfs.path=/k8snfs/nfs
 ```
-- If you wish to set the storage class as default as well Then upgrade the chart
+   
+ If you wish to set the storage class as default as well Then upgrade the chart
 ```
 helm upgrade nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner     \
      --namespace=kube-system    \
@@ -178,7 +179,9 @@ helm upgrade nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs
      --set nfs.path=/k8snfs/nfs  \
      --set storageClass.defaultClass=true
  ```
-## Setup Cert-manager
+   
+## Setup Cert-manager   
+
 ```
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.yaml
 ```
