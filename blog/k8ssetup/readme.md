@@ -70,23 +70,35 @@ sudo sysctl --system
 
 **step on master node**
 
-``` sudo kubeadm init --pod-network-cidr=10.244.0.0/16```
+```
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+```
 To install with specific CRI socket
 ```
 sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --cri-socket unix:///var/run/crio/crio.sock
 ```
+
+
+``` 
+mkdir -p $HOME/.kube
 ```
 
-``` mkdir -p $HOME/.kube```
+```
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+```
 
-``` sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config```
-
-``` sudo chown $(id -u):$(id -g) $HOME/.kube/config```
+```
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
 
 **join worker node ( step on worker node )**
 
-``` kubeadm join 192.168.122.220:6443 --token gefqt9.oj3kcgubehofxbz8 ```
-     ```--discovery-token-ca-cert-hash sha256:a79789ade9c95182522f55b1ab17e93cd6eac9c7eaf8b7b67a6c125bbb5f50ce ```
+With specific CRI
+``` kubeadm join 192.168.122.220:6443 --token gefqt9.oj3kcgubehofxbz8  --discovery-token-ca-cert-hash sha256:a79789ade9c95182522f55b1ab17e93cd6eac9c7eaf8b7b67a6c125bbb5f50ce  --cri-socket unix:///var/run/crio/crio.sock
+```
+
+``` kubeadm join 192.168.122.220:6443 --token gefqt9.oj3kcgubehofxbz8  --discovery-token-ca-cert-hash sha256:a79789ade9c95182522f55b1ab17e93cd6eac9c7eaf8b7b67a6c125bbb5f50ce  
+```
 
 **deploy a pod network plugin ( on master node )**
 
