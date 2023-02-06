@@ -165,7 +165,7 @@ sudo bash get_helm.sh
 ```
 helm install nfsclient nfs-subdir-external-provisioner --repo https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner \
     --namespace=kube-system \
-    --archiveOnDelete=false \
+    --set storageClass.archiveOnDelete=false \
     --set nfs.server=172.10.10.144 \
     --set nfs.path=/nfs
 ```
@@ -174,7 +174,7 @@ helm install nfsclient nfs-subdir-external-provisioner --repo https://kubernetes
 ```
 helm install nfsclient nfs-subdir-external-provisioner --repo https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner \
     --namespace=kube-system \
-    --archiveOnDelete=false \
+    --set storageClass.archiveOnDelete=false \
     --set nfs.server=172.10.10.144 \
     --set nfs.path=/nfs  \
     --set storageClass.defaultClass=true
