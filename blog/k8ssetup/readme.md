@@ -163,21 +163,21 @@ sudo bash get_helm.sh
 
 ## NFS dynamic provisioner setup ( Helm Chart )
 ```
-helm repo add nfs-subdir-external-provisioner  https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner   
-
-helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+helm install nfsclient nfs-subdir-external-provisioner --repo https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner \
     --namespace=kube-system \
-    --set nfs.server=192.168.1.11 \
-    --set nfs.path=/k8snfs/nfs
+    --archiveOnDelete=false \
+    --set nfs.server=172.10.10.144 \
+    --set nfs.path=/nfs
 ```
    
  If you wish to set the storage class as default as well Then upgrade the chart
 ```
-helm upgrade nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner     \
-     --namespace=kube-system    \
-     --set nfs.server=192.168.1.11  \
-     --set nfs.path=/k8snfs/nfs  \
-     --set storageClass.defaultClass=true
+helm install nfsclient nfs-subdir-external-provisioner --repo https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner \
+    --namespace=kube-system \
+    --archiveOnDelete=false \
+    --set nfs.server=172.10.10.144 \
+    --set nfs.path=/nfs  \
+    --set storageClass.defaultClass=true
  ```
    
 ## Setup Cert-manager   
