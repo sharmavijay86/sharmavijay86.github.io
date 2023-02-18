@@ -3,7 +3,7 @@ name: Vijay K.
 username: vijayk
 bio: "Hi I am Vijay K., a Consultent, Architect and trainer in Public cloud, Kubernetes & DevOps."
 site: https://mevijay.com
-avatar: johndoe.png
+avatar: Cartoonify-me.png
 email: vijay@mevijay.com
 social:
     - title: "github"
