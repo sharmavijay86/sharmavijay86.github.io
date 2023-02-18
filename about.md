@@ -1,3 +1,5 @@
-layout: page
-title: ABout myself | Vijay K.
-permalink: /aboutme/
+---
+title: About
+layout: about-me
+permalink: /about/
+---
