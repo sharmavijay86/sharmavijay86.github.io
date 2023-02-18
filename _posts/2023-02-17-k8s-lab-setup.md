@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  ""
-summary: "Getting Started using devlopr-jekyll"
+title:  "simple kubernetes cluster lab on ubuntu"
+summary: "simple kubernetes CKA cluster lab on ubuntu"
 author: vijayk
 date: '2023-02-16 14:35:23 +0530'
 category: k8s
