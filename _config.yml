@@ -3,15 +3,61 @@ email: vijay@mevijay.dev
 description: >- # this means to ignore newlines until "baseurl:"
   This project is a showcase of how to setup a portfolio website using GitHub Pages, 
   with the main accent put on the blogging part.
-baseurl: '/gp-blog' # the subpath of your site, e.g. /blog
-url: 'https://mevijay.com'
+baseurl: "" # the subpath of your site, e.g. /blog
+url: ""
 twitter_username: sharmavijay86
 github_username: sharmavijay86
 
-permalink: /:collection/:year-:month-:day-:title:output_ext
+permalink: /:categories/:year/:month/:day/:title:output_ext
 show_excerpts: true
+urls:
+  - text: Home
+    url: /
+  - text: Blog
+    url: /blog
+  - text: About me
+    url: /about
+author_logo: profile.png
+author: Vijay K.
+author_bio: My name is Vijay. I am an Architect, consultent, trainer and your friend. Cloud and DevOps is my area of expertise
+author_email: "vijay@mevijay.dev"
+author_website_url: "https://mevijay.com"
 
 # Build settings
-theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-paginate
+  - jekyll-gist
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-admin
+
+markdown: kramdown
+highlighter: rouge
+
+
+olvy_organization: devlopr
+olvy_widget_type: sidebar
+
+facebook_username: johndoe
+linkedin_username: johndoe
+behance_username: johndoe
+instagram_username: johndoe
+medium_username: johndoe
+telegram_username: johndoe
+dribbble_username: johndoe
+flickr_username: johndoe
+
+show_author_work_experiences: true
+show_author_education_details: true
+show_author_project_details: true
+
+paginate: 4
+per_page: 4
+paginate_path: "/blog/page/:num/"
+
+collections:
+  products:
+    output: true
+  authors:
+    output: true
