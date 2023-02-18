@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Guides
-permalink: /blog/categories/sample_category/
+title: devops
+permalink: /blog/categories/devops/
 ---
 
 <h5> Posts by Category : {{ page.title }} </h5>

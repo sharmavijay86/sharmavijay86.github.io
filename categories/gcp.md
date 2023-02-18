@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Jekyll
-permalink: /blog/categories/jekyll/
+title: gcp cloud
+permalink: /blog/categories/gcp/
 ---
 
 <h5> Posts by Category : {{ page.title }} </h5>

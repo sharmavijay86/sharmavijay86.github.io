@@ -2,9 +2,9 @@
 layout: post
 title:  "Added Latex Support"
 summary: Writing Equations using Latex
-author: xplor4r
+author: vijayk
 date: '2020-10-24 10:35:23 +0530'
-category: jekyll
+category: gcp
 thumbnail: /assets/img/posts/code.jpg
 keywords: devlopr jekyll, how to use devlopr, devlopr, how to use devlopr-jekyll, devlopr-jekyll tutorial,best jekyll themes
 usemathjax: true
