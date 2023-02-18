@@ -94,10 +94,10 @@ medium_username: sharmavijay86
 wakatime_username: sharmavijay86
 
 # mailchimp embedded form url (newsletter):
-mailchimp_form_url: https://mailchi.mp/c84f97eeabfb/mevijays
+mailchimp_form_url: https://gmail.us10.list-manage.com/subscribe/post?u=ff9e8f3ce82bf1eb36904e570&amp;id=5f324018b2&amp;f_id=007ce8e5f0
 
 # contact form - (choose formspress or getform)
-# getform_endpoint: 83b703c3-9e47-4df4-ac55-e24d7eb02abc
+getform_endpoint: e3e9b318-850b-45bc-9771-1b154bee9b14
 formspree_email: sharmavijay86@gmail.com
 
 # releases - widget can be (sidebar, modal or embed)
