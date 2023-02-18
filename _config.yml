@@ -31,11 +31,11 @@ hero_cover_img: sample_cover.jpg # replace this for changing homepage cover (eg.
 
 # Experiences
 author_work_experiences:
-            - company_name: HCL Technologies
-              company_logo: hcl.png
-              company_url: https://hcl.com
-              designation: Consultent
-              description: Worked as consultent in public cloud and DevOps
+            - company_name: Deutsche Bank
+              company_logo: db.png
+              company_url: https://db.com
+              designation: DevOps practice lead (V.P.)
+              description: Worked on GCP public cloud platforms and designed solution around DevOps and automation.
               visibility: true
             - company_name: Vodafone
               company_logo: vodafone.png
@@ -43,10 +43,22 @@ author_work_experiences:
               designation: Cloud architect and DevOps lead
               description: Worked on various public cloud platforms and designed solution around DevOps and automation.
               visibility: true
+            - company_name: HCL Technologies
+              company_logo: hcl.png
+              company_url: https://hcl.com
+              designation: Consultent
+              description: Worked as consultent in public cloud and DevOps
+              visibility: true
+            - company_name: Wipro infotech
+              company_logo: wipro.png
+              company_url: https://wipro.com
+              designation: Senior engineer
+              description: Worked as Senior engineer in Data Center and network secuirty
+              visibility: true
 
 # Education
 author_education_details:
-              - college_logo: subharti.png
+              - college_logo: subharti.jpg
                 college_name: Subharti University
                 college_url: subharti.org
                 college_degree: MCA
