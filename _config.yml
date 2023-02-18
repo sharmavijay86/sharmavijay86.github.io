@@ -1,7 +1,7 @@
 title: Vijay K.
 subtitle: About myself and about DevOps & Cloud
 description: >- # this means to ignore newlines until "baseurl:"
-  About Vijay and ABout work done by Vijay. About blogs in cloud and k8s.
+  About Vijay and About work done by Vijay. About blogs in cloud and k8s.
 
 url: "" # the base hostname & protocol for your site, e.g. https://example.github.io
 baseurl: "" # the subpath of your site, e.g. /blog
@@ -22,7 +22,7 @@ urls:
 
 author_logo: profile.png
 author: Vijay K.
-author_bio: Hi, my name is Vijay K. I am a consultent, Engineer, Trainer, Architect and your friend.
+author_bio: Hi! My name is Vijay K. I am a consultent, Engineer, Trainer, Architect and your friend. I am DevOps,cloud and Kubernetes Architect and consultant. 17+ Years of IT Experience. Extensive experience in kubernetes, microservices, container and application platform designing and solutioning in GCP and Azure Cloud. Expertise in GCP and Azure pubic cloud platform. Software life cycle management, CI/CD, Infrastructure provisioning experience with code. Automation and scripting of platform and production development.
 author_email: "vijay@mevijay.com"
 author_location: India
 author_website_url: "https://mevijay.com"
@@ -94,7 +94,7 @@ medium_username: sharmavijay86
 wakatime_username: sharmavijay86
 
 # mailchimp embedded form url (newsletter):
-mailchimp_form_url: https://sujaykundu.us10.list-manage.com/subscribe/post?u=50bab1c85eae24ecfb0f68361&amp;id=3a2dd721d0
+mailchimp_form_url: https://mailchi.mp/c84f97eeabfb/mevijays
 
 # contact form - (choose formspress or getform)
 # getform_endpoint: 83b703c3-9e47-4df4-ac55-e24d7eb02abc

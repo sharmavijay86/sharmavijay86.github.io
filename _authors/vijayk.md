@@ -1,5 +1,5 @@
 ---
-name: Vijay K.
+name: Vijay K
 username: vijayk
 bio: "Hi I am Vijay K., a Consultent, Architect and trainer in Public cloud, Kubernetes & DevOps."
 site: https://mevijay.com
