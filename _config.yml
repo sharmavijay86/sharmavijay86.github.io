@@ -116,7 +116,7 @@ show_author_project_details: false
 
 # pagination of posts
 paginate: 4
-per_page: 4
+per_page: 8
 paginate_path: "/blog/page/:num/"
 
 # minify

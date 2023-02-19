@@ -13,14 +13,14 @@ usemathjax: true
 
 
 # Docker compose install  
-- Intallation of docker-compose can be done via binary download. Follow these commands-
+- Intallation of docker-compose can be done via binary download. Follow these commands-   
 ```python
 wget https://github.com/docker/compose/releases/download/v2.13.0/docker-compose-linux-x86_64
 
 sudo mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 ```
-- You can validate the installation by running bellow command
+- You can validate the installation by running bellow command    
 ```python
 docker-compose version
 ```
