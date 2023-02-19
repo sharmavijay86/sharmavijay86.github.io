@@ -1,0 +1,1274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Vijay K.</title>
+    <description>About Vijay and About work done by Vijay. About blogs in cloud and k8s.</description>
+    <link>http://0.0.0.0:4000/</link>
+    <atom:link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Sat, 18 Feb 2023 13:29:51 -0600</pubDate>
+    <lastBuildDate>Sat, 18 Feb 2023 13:29:51 -0600</lastBuildDate>
+    <generator>Jekyll v4.3.2</generator>
+
+    
+      <item>
+        <title>Openshift4 all in one setup</title>
+        <description>&lt;h1 id=&quot;ocp-4243-all-in-one-upi-mode&quot;&gt;OCP 4.2/4.3 All-In-One (UPI mode)&lt;/h1&gt;
+
+&lt;p&gt;This document assume reader is familiar with the OCP4x installation process.&lt;/p&gt;
+
+&lt;h2 id=&quot;before-deployment&quot;&gt;Before Deployment&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Setup the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;install-config.yaml&lt;/code&gt; to deploy a single master and no workers
+  ```
+  apiVersion: v1
+  baseDomain: example.com
+  compute:
+    &lt;ul&gt;
+      &lt;li&gt;hyperthreading: Enabled
+name: worker
+replicas: 0
+  controlPlane:
+hyperthreading: Enabled
+name: master
+replicas: 1
+  metadata:
+   name: aio
+  networking:
+  clusterNetworks:
+        &lt;ul&gt;
+          &lt;li&gt;cidr: 10.128.0.0/14
+  hostPrefix: 23
+  networkType: OpenShiftSDN
+  serviceNetwork:&lt;/li&gt;
+          &lt;li&gt;172.30.0.0/16
+  platform:
+  none: {}
+  pullSecret: ‘&lt;your-pull-secret-here&gt;&apos;
+  sshKey: &apos;ssh-rsa AAA...&apos;
+  ```&lt;/your-pull-secret-here&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;during-deployment&quot;&gt;During Deployment&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;During installation there still need for a temporary external load balancer (or poor man version, modify the DNS entries).
+    &lt;ul&gt;
+      &lt;li&gt;For the installation prepare the DNS equivalent to this:
+        &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  aio.example.com             &amp;lt;ip_aio&amp;gt;
+  etcd-0.aio.example.com      &amp;lt;ip_aio&amp;gt;
+  apps.aio.example.com        &amp;lt;ip_aio&amp;gt;
+  *.apps.aio.example.com      &amp;lt;ip_aio&amp;gt;
+  api-int.aio.example.com     &amp;lt;ip_bootstrap&amp;gt;
+  api.aio.example.com         &amp;lt;ip_bootstrap&amp;gt;
+
+  # etcd Service Record
+  _etcd-server-ssl._tcp.aio.example.com.   IN SRV  0   0   2380    etcd-0.aio.example.com.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
+      &lt;/li&gt;
+      &lt;li&gt;After &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;bootkube.service&lt;/code&gt; completes modify the DNS
+        &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  aio.example.com             &amp;lt;ip_aio&amp;gt;
+  etcd-0.aio.example.com      &amp;lt;ip_aio&amp;gt;
+  apps.aio.example.com        &amp;lt;ip_aio&amp;gt;
+  *.apps.aio.example.com      &amp;lt;ip_aio&amp;gt;
+  api-int.aio.example.com     &amp;lt;ip_aio&amp;gt;
+  api.aio.example.com         &amp;lt;ip_aio&amp;gt;
+
+  # etcd Service Record
+  _etcd-server-ssl._tcp.aio.example.com.   IN SRV  0   0   2380    etcd-0.aio.example.com.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;The single node will be shown with both roles (master and worker)
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  $ oc get nodes
+  NAME   STATUS   ROLES           AGE    VERSION
+  aio    Ready    master,worker   33m    v1.16.2
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Set &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;etcd-quorum-guard&lt;/code&gt; to unmanaged state
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  oc patch clusterversion/version --type=&apos;merge&apos; -p &quot;$(cat &amp;lt;&amp;lt;- EOF
+  spec:
+    overrides:
+      - group: apps/v1
+        kind: Deployment
+        name: etcd-quorum-guard
+        namespace: openshift-machine-config-operator
+        unmanaged: true
+  EOF
+  )&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Downscale &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;etcd-quorum-guard&lt;/code&gt; to one:
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  oc scale --replicas=1 deployment/etcd-quorum-guard -n openshift-machine-config-operator
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Downscale the number of routers to one:
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  oc scale --replicas=1 ingresscontroller/default -n openshift-ingress-operator
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;(Recommended) Downscale the number of consoles, authentication, OLM and monitoring services to one:
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  oc scale --replicas=1 deployment.apps/console -n openshift-console
+  oc scale --replicas=1 deployment.apps/downloads -n openshift-console
+
+  oc scale --replicas=1 deployment.apps/oauth-openshift -n openshift-authentication
+
+  oc scale --replicas=1 deployment.apps/packageserver -n openshift-operator-lifecycle-manager
+    
+  # NOTE: When enabled, the Operator will auto-scale this services back to original quantity
+  oc scale --replicas=1 deployment.apps/prometheus-adapter -n openshift-monitoring
+  oc scale --replicas=1 deployment.apps/thanos-querier -n openshift-monitoring
+  oc scale --replicas=1 statefulset.apps/prometheus-k8s -n openshift-monitoring
+  oc scale --replicas=1 statefulset.apps/alertmanager-main -n openshift-monitoring
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;(optional) Setup image-registry to use ephemeral storage.&lt;/p&gt;
+
+    &lt;p&gt;&lt;strong&gt;WARNING&lt;/strong&gt;: Only use ephemeral storage for internal registry for testing purposes.&lt;/p&gt;
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  oc patch configs.imageregistry.operator.openshift.io cluster --type merge \
+  --patch &apos;{&quot;spec&quot;:{&quot;storage&quot;:{&quot;emptyDir&quot;:{}}}}&apos;
+
+  oc patch configs.imageregistry.operator.openshift.io cluster --type merge \
+  --patch &apos;{&quot;spec&quot;:{&quot;managementState&quot;:&quot;Managed&quot;}}&apos;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+    &lt;p&gt;NOTE: Wait until the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;image-registry&lt;/code&gt; operator completes the update before using the registry.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Sat, 18 Feb 2023 09:05:23 -0600</pubDate>
+        <link>http://0.0.0.0:4000/blog/openshift4-all-in-one-setup/</link>
+        <guid isPermaLink="true">http://0.0.0.0:4000/blog/openshift4-all-in-one-setup/</guid>
+      </item>
+    
+      <item>
+        <title>oauth2-proxy-for-all-k8s-app</title>
+        <description>&lt;h1 id=&quot;oauth2-proxy-github-auth-integration-for-all-k8s-application&quot;&gt;Oauth2-proxy github auth integration for all k8s application.&lt;/h1&gt;
+&lt;p&gt;Kubernetes is a very powerfull and moduler orchestration system. It gives option to modify it completely as per our use cases. One of the use case is setting up authorization mechanisms.
+We had a requirement in which we wanted to secure most of application which does not have any native authentication system like kibana and kubernetes dashboard. It include some other application also.
+Mainly flow is like this&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;User opens dashboard.devk8s.mylab.local ( application )&lt;/li&gt;
+  &lt;li&gt;User redirected to login.devk8s.mylab.local for github auth ( my oauth2-proxy url )&lt;/li&gt;
+  &lt;li&gt;User logged in with github authentication and presented (redirected) to application now. dashboard.devk8s.mylab.local&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;requirements&quot;&gt;Requirements:&lt;/h2&gt;
+&lt;p&gt;To get this done in my k8s cluster i am going to use oauth2-proxy helm chart, nginx ingress controller and github app.&lt;/p&gt;
+
+&lt;h3 id=&quot;create-github-app&quot;&gt;Create github app&lt;/h3&gt;
+&lt;p&gt;Note: to implement RBAC we need github orgnization and teams. i am taking example that i have orgnization name as &lt;strong&gt;MyOrg&lt;/strong&gt; and team name is &lt;strong&gt;adminusers&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Login to your github.com account. Nevigate to orgnization page. Go to settings –&amp;gt; developer settings –&amp;gt; new oauth app&lt;/li&gt;
+  &lt;li&gt;Putt bello entries-
+Application Name:  oauth2proxy
+Home page url: https://login.devk8s.mylab.local
+Authorization callback URL: https://login.devk8s.mylab.local/oauth2/callback&lt;/li&gt;
+  &lt;li&gt;Take a note of &lt;strong&gt;client ID&lt;/strong&gt; and &lt;strong&gt;Client secret&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;deploy-oauth2-proxy-by-using-helm-chart&quot;&gt;Deploy oauth2-proxy by using helm chart&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Bellow is the helm chart values file &lt;script src=&quot;https://gist.github.com/sharmavijay86/1fa19b9775462e1794c48b9b3feb8c49.js&quot;&gt;&lt;/script&gt;&lt;/li&gt;
+  &lt;li&gt;Make neccessory modifications&lt;/li&gt;
+  &lt;li&gt;add helm repo&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;helm repo add k8s-at-home https://k8s-at-home.com/charts/
+helm repo update
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Now you have already downloaded and created values.yaml file from above gist. Lets use it and deploy the helm chart.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;helm install oauth2-proxy k8s-at-home/oauth2-proxy --namespace=auth-system --create-namespaces=true --values=values.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Done!&lt;/p&gt;
+&lt;h3 id=&quot;deploy-hello-world-app&quot;&gt;deploy hello world app&lt;/h3&gt;
+&lt;p&gt;Bellow is the example manifest of hello k8s application. modify ingress host urls. Take a note here i am adding bellow annotations to work with oauth2.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Request-User,X-Auth-Request-Email
+nginx.ingress.kubernetes.io/auth-signin: https://login.devk8s.mylab.local/oauth2/start
+nginx.ingress.kubernetes.io/auth-url: https://login.devk8s.mylab.local/oauth2/auth
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Full application manifest-&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# hello-kubernetes.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-kubernetes
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: hello-kubernetes
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-kubernetes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-kubernetes
+  template:
+    metadata:
+      labels:
+        app: hello-kubernetes
+    spec:
+      containers:
+      - name: hello-kubernetes
+        image: sharmavijay86/hello-k8s:v1
+        ports:
+        - containerPort: 8080
+        env:
+          - name: MESSAGE
+            value: Hello from git 
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/issuer: mylab
+      nginx.ingress.kubernetes.io/auth-response-headers: X-Auth-Request-User,X-Auth-Request-Email
+      nginx.ingress.kubernetes.io/auth-signin: https://login.devk8s.mylab.local/oauth2/start
+      nginx.ingress.kubernetes.io/auth-url: https://login.devk8s.mylab.local/oauth2/auth
+    name: nginx-test
+spec:
+    rules:
+      - host: hello.devk8s.mylab.local
+        http:
+          paths:
+            - backend:
+                serviceName: hello-kubernetes
+                servicePort: 80
+              path: /
+    tls:
+    - hosts:
+       - hello.devk8s.mylab.local
+      secretName: hello-tls
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Now when i am trying to open hello.devk8s.mylab.local url it presents me github auth  and after login only i am getting access of hello k8s application.
+  For same results with other applications like kibana or kubernetes dashboard, just add the three annotations as described above. done!&lt;/p&gt;
+</description>
+        <pubDate>Sat, 18 Feb 2023 07:05:23 -0600</pubDate>
+        <link>http://0.0.0.0:4000/blog/oauth2-proxy-for-all-k8s-app/</link>
+        <guid isPermaLink="true">http://0.0.0.0:4000/blog/oauth2-proxy-for-all-k8s-app/</guid>
+      </item>
+    
+      <item>
+        <title>Mysql replication setup</title>
+        <description>&lt;h2 id=&quot;mysql-57-database-replication&quot;&gt;Mysql 5.7 database replication&lt;/h2&gt;
+&lt;h4 id=&quot;steps-to-perform-on-master&quot;&gt;Steps to perform on Master&lt;/h4&gt;
+&lt;p&gt;Edit conf file&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim /etc/mysql/mysql.conf.d/mysqld.cnf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;make bellow changes&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bind-address            = 192.168.0.161
+server-id               = 1
+log_bin                 = /var/log/mysql/mysql-bin.log
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;login to mysql and run query&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;create user &apos;slave&apos;@&apos;192.168.0.68&apos; identified by &apos;redhat123&apos;;
+grant replication slave on *.* to &apos;slave&apos;@&apos;192.168.0.68&apos;;
+flush privileges;
+FLUSH TABLES WITH READ LOCK;
+mysql&amp;gt; show master status;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000001 |      771 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;take complete database backup to copy on slave server&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysqldump --all-databases --master-data &amp;gt; data.sql
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;transfer backup dump to slave server&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;scp data.sql ubuntu@192.168.0.68:~/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Now unlock tables here in master mysql&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;UNLOCK TABLES;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;steps-to-run-on-slave&quot;&gt;Steps to run on slave&lt;/h4&gt;
+&lt;p&gt;Edit file and make changes as bellow&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim /etc/mysql/mysql.conf.d/mysqld.cnf
+
+bind-address            = 192.168.0.68
+server-id               = 2
+log_bin                 = /var/log/mysql/mysql-bin.log
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;restore database dump from master&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql  &amp;lt; /home/ubuntu/data.sql
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Now login to mysql  and run query&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;stop slave;
+change master to master_host=&apos;192.168.0.161&apos;,master_user=&apos;slave&apos;,master_password=&apos;redhat123&apos;,master_log_file=&apos;mysql-bin.000001&apos;,master_log_pos=771;
+start slave;
+SHOW SLAVE STATUS \G;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Done!   If required restart mysql service.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;systemctl restart mysql
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+</description>
+        <pubDate>Sat, 18 Feb 2023 05:05:23 -0600</pubDate>
+        <link>http://0.0.0.0:4000/blog/easy-way-of-mysql-multimaster-setup/</link>
+        <guid isPermaLink="true">http://0.0.0.0:4000/blog/easy-way-of-mysql-multimaster-setup/</guid>
+      </item>
+    
+      <item>
+        <title>powerdns setup with recursor and pdnsmanager webui</title>
+        <description>&lt;h2 id=&quot;setup-powerdns-with-recursor-and-pdnsmanager-web-ui&quot;&gt;Setup powerdns with recursor and pdnsmanager web ui&lt;/h2&gt;
+&lt;p&gt;In ubuntu there would be systemdresolver already running on port 53, hence we will first disable that.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;root@pdns:~# systemctl stop systemd-resolved
+root@pdns:~# systemctl disable systemd-resolved
+root@pdns:~# systemctl mask systemd-resolved
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Now open resolv file and keep entry whatever you requires. &lt;br /&gt;
+Note : This is just for information if you want to make entries static install packages ifupdown and resolvconf&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim /etc/resolv.conf
+
+echo &quot;deb http://repo.powerdns.com/ubuntu bionic-auth-41 main&quot; &amp;gt;&amp;gt; /etc/apt/sources.list.d/powerdns.list
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;enable repository&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim /etc/apt/preferences.d/powerdns
+Package: pdns-*
+Pin: origin repo.powerdns.com
+Pin-Priority: 600
+
+curl -s https://repo.powerdns.com/FD380FBB-pub.asc | sudo apt-key add -
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Now install packages&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;apt update
+apt-get install pdns-server pdns-recursor pdns-backend-mysql mysql-server -y
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Once packages get installed edit pdns config file to make required changes&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim /etc/powerdns/pdns.conf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;set bellow entries&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;allow-axfr-ips=127.0.0.1 &amp;lt;ip of your secondary nameserver&amp;gt;
+config-dir=/etc/powerdns
+daemon=yes
+disable-axfr=no
+guardian=yes
+local-address=0.0.0.0
+local-port=54
+master=yes
+slave=yes
+module-dir=/usr/lib/x86_64-linux-gnu/pdns
+setgid=pdns
+setuid=pdns
+socket-dir=/var/run
+version-string=powerdns
+include-dir=/etc/powerdns/pdns.d
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;save and exit &lt;br /&gt;
+Now we will setup powerdns recursor&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim /etc/powerdns/recursor.conf
+
+forward-zones=mylab.local=127.0.0.1:54
+forward-zones-recurse=.=1.1.1.1,.=8.8.8.8
+local-address=0.0.0.0
+local-port=53
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;you can use your own forwarders in above config instead 1.1.1.1 and 8.8.8.8
+edit mysql for pdns now&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim /etc/powerdns/pdns.d/pdns.local.gmysql.conf 
+
+launch=gmysql
+
+gmysql-host=localhost
+gmysql-port=3306
+gmysql-dbname=pdns
+gmysql-user=pdns
+gmysql-password=pdns
+gmysql-dnssec=no
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;save and exit  &lt;br /&gt;
+restart services&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;systemctl restart pdns
+systemctl restart pdns-recursor
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Now we will create and setup mysql database for dns records  &lt;br /&gt;
+Lets tune some mysql entries for more read request&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim /etc/mysql/mysql.conf.d/mysqld.cnf
+
+
+--- InnoDB section
+innodb_log_file_size = 64M
+default-storage-engine=INNODB
+innodb_buffer_pool_size=1G
+innodb_buffer_pool_instances = 2
+innodb_autoinc_lock_mode = 2
+innodb_doublewrite = 1
+innodb_file_per_table = 1
+innodb_flush_log_at_trx_commit = 2
+innodb_lock_wait_timeout = 60
+innodb_locks_unsafe_for_binlog = 1
+innodb_stats_on_metadata = 0
+transaction-isolation=READ-COMMITTED
+
+service mysql restart
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;create database and user&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mysql&amp;gt; create database powerdns;
+mysql&amp;gt; grant all on powerdns.* to &apos;pdns&apos;@&apos;localhost&apos; identified by &apos;secret&apos;;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h4 id=&quot;setting-up-pdnsmanager&quot;&gt;Setting up pdnsmanager&lt;/h4&gt;
+
+&lt;p&gt;Install required php and apache packages&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;apt install php php-apcu php-mysql apache2 -y
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Enable apache modules&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;a2enmod rewrite 
+a2enmod ssl
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Setup virtual host in apache&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim /etc/apache2/sites-enabled/default.conf
+
+&amp;lt;VirtualHost _default_:443&amp;gt;
+    ServerAdmin webmaster@localhost
+
+    ServerName pdns.example.com
+
+    DocumentRoot /var/www/html/frontend
+
+    RewriteEngine On
+    RewriteRule ^index\.html$ - [L]
+    RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-f
+    RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-d
+    RewriteRule !^/api/\.* /index.html [L]
+
+    Alias /api /var/www/html/backend/public
+    &amp;lt;Directory /var/www/html/backend/public&amp;gt;
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^ index.php [QSA,L]
+    &amp;lt;/Directory&amp;gt;
+
+&amp;lt;/VirtualHost&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Make changes in above as per your need ( keep ssl settingsi have not included them ) &lt;br /&gt;
+Now get the webui package download , untar and set&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;wget https://dl.pdnsmanager.org/pdnsmanager-2.0.1.tar.gz
+tar -xvf pdnsmanager-2.0.1.tar.gz
+cd pdnsmanager-2.0.1
+mv backend /var/www/html/
+mv frontend /var/www/html/
+chown -R www-data:www-data /var/www/html 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;access url now with /setup
+use same database entry as given above in mysql&lt;/p&gt;
+
+&lt;p&gt;Done enjoy!&lt;/p&gt;
+
+&lt;h4 id=&quot;replication-on-master-slave-for-powerdns&quot;&gt;replication on master slave for powerdns&lt;/h4&gt;
+
+&lt;p&gt;powerdns uses mysql as backend in above example hence do all settings on slave server just like above except mysql database. Instead folow guide to &lt;a href=&quot;/blog/easy-way-of-mysql-multimaster-setup/&quot;&gt;perform mysql database replication&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Thu, 16 Feb 2023 05:05:23 -0600</pubDate>
+        <link>http://0.0.0.0:4000/blog/setup-powerdns-with-recursor-and-web-ui/</link>
+        <guid isPermaLink="true">http://0.0.0.0:4000/blog/setup-powerdns-with-recursor-and-web-ui/</guid>
+      </item>
+    
+      <item>
+        <title>simple kubernetes cluster lab on ubuntu</title>
+        <description>&lt;h1 id=&quot;kubernetes-cluster-lab-with-ubuntu-2004&quot;&gt;Kubernetes cluster lab with ubuntu 20.04&lt;/h1&gt;
+
+&lt;h3 id=&quot;cloud-init-config&quot;&gt;Cloud-init-config&lt;/h3&gt;
+&lt;p&gt;If you are using this cloud-init user data file on ubuntu 20.04 it will setup all prerequisite including. apt repo, kernel parameter, kubeadm. Just change the desired kubernetes version.
+&lt;script src=&quot;https://gist.github.com/sharmavijay86/cf86ca128a166ddd456bf0be1b95e2a6.js&quot;&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;step-to-follow-on-all-nodes&quot;&gt;Step to follow on all nodes&lt;/h3&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get update
+sudo apt-get upgrade
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;To turn off swap space, if it is enabled&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo sed -i &apos;/ swap / s/^\(.*\)$/#\1/g&apos; /etc/fstab
+sudo swapoff -a
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;You have 2 diffrent CRI options to use:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;containerd&lt;/li&gt;
+  &lt;li&gt;cri-o&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Bellow are steps to install either of one.&lt;/p&gt;
+&lt;h3 id=&quot;to-install-containerd&quot;&gt;To install containerd.&lt;/h3&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt install containerd -y
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h3 id=&quot;to-install-crio&quot;&gt;To install CRIO&lt;/h3&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt update
+sudo apt install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
+export OS_VERSION=xUbuntu_20.04
+export CRIO_VERSION=1.23
+curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS_VERSION/Release.key | sudo gpg --dearmor -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS_VERSION/Release.key | sudo gpg --dearmor -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
+echo &quot;deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS_VERSION/ /&quot; | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+echo &quot;deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS_VERSION/ /&quot; | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
+sudo apt update
+sudo apt install -y cri-o cri-o-runc
+sudo systemctl daemon-reload
+sudo systemctl enable crio
+sudo systemctl start crio
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h3 id=&quot;enable-kube-adm-repository&quot;&gt;Enable kube adm repository&lt;/h3&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-add-repository &quot;deb http://apt.kubernetes.io/ kubernetes-xenial main&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;If we want to install specific version of k8s, use bellow command. Just replace the version from 1.23.5-00 to other.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt install kubelet=1.23.5-00 kubeadm=1.23.5-00 kubectl=1.23.5-00 -y
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;For latest version, to install, use bellow.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt install kubelet kubeadm kubectl -y
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo modprobe overlay
+sudo modprobe br_netfilter
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo tee /etc/sysctl.d/kubernetes.conf&amp;lt;&amp;lt;EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo sysctl --system
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;step-on-master-nodes&quot;&gt;Step on master nodes&lt;/h2&gt;
+
+&lt;p&gt;We can initialize master node with difrent options:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Standard install with defined pod-cidr
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;To install with specific CRI socket, in case cri-o.
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --cri-socket unix:///var/run/crio/crio.sock
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;To enable the kubectl admin context.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;join-worker-node--step-on-worker-node-&quot;&gt;Join worker node ( step on worker node )&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;With specific CRI
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo kubeadm join 192.168.122.220:6443 --token gefqt9.oj3kcgubehofxbz8  --discovery-token-ca-cert-hash sha256:a79789ade9c95182522f55b1ab17e93cd6eac9c7eaf8b7b67a6c125bbb5f50ce  --cri-socket unix:///var/run/crio/crio.sock
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;With standard option.
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo kubeadm join 192.168.122.220:6443 --token gefqt9.oj3kcgubehofxbz8  --discovery-token-ca-cert-hash sha256:a79789ade9c95182522f55b1ab17e93cd6eac9c7eaf8b7b67a6c125bbb5f50ce  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;deploy-a-pod-network-plugin--on-master-node-&quot;&gt;Deploy a pod network plugin ( on master node )&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;Flannel install
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Weavnet install
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;## Setup of metal LB (Optional)
+Apply deployment manifests-&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e &quot;s/strictARP: false/strictARP: true/&quot; | kubectl apply -f - -n kube-system
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/namespace.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/metallb.yaml
+kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey=&quot;$(openssl rand -base64 128)&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Create yaml for ip pool&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vim ip-pool.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Apply the ip pool for LB. Create and modify values based on your network.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  config: |
+    address-pools:
+    - name: default
+      protocol: layer2
+      addresses:
+      - 192.168.122.20-192.168.122.30
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Apply&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply -f ip-pool.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h2 id=&quot;installenable-helm-binary&quot;&gt;Install/enable helm binary&lt;/h2&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+sudo bash get_helm.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h2 id=&quot;setup-ingres-as-nginx&quot;&gt;Setup ingres as nginx&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;Daemonset
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; helm install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --create-namespace=true \
+ --set controller.kind=DaemonSet,controller.service.enabled=false \
+ --set controller.hostNetwork=true,controller.publishService.enabled=false --namespace=ingress 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Deployment
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; helm install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace=ingress --create-namespace=true 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;nfs-dynamic-provisioner-setup--helm-chart-&quot;&gt;NFS dynamic provisioner setup ( Helm Chart )&lt;/h2&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;helm install nfsclient nfs-subdir-external-provisioner --repo https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner \
+    --namespace=kube-system \
+    --set storageClass.archiveOnDelete=false \
+    --set nfs.server=172.10.10.144 \
+    --set nfs.path=/nfs
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;If you wish to set the storage class as default as well Then upgrade the chart&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;helm install nfsclient nfs-subdir-external-provisioner --repo https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner \
+    --namespace=kube-system \
+    --set storageClass.archiveOnDelete=false \
+    --set nfs.server=172.10.10.144 \
+    --set nfs.path=/nfs  \
+    --set storageClass.defaultClass=true
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;setup-cert-manager&quot;&gt;Setup Cert-manager&lt;/h2&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;setup-metrics-server&quot;&gt;Setup metrics-server&lt;/h2&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply -f https://raw.githubusercontent.com/sharmavijay86/sharmavijay86.github.io/master/blog/k8ssetup/components.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h2 id=&quot;setup-the-efk-elastic-search-fluentbit--kibana-stack-with-helm-chart&quot;&gt;Setup the EFK (elastic search fluentbit &amp;amp; kibana) stack with helm chart&lt;/h2&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl create ns logging
+helm upgrade --install fluent-bit fluent-bit --repo=https://fluent.github.io/helm-charts
+helm upgrade --install elasticsearch elasticsearch --set=replicas=3,minimumMasterNodes=1,resources.requests.cpu=100m,resources.requests.memory=1Gi,volumeClaimTemplate.resources.requets.storage=5Gi, --repo=https://helm.elastic.co -n logging
+helm upgrade --install kibana kibana --set=resources.requests.cpu=100m,resources.requests.memory=500Mi,ingress.enabled=true,ingress.annotations.&quot;cert-manager\.io\/cluster-issuer&quot;=letsencrypt-staging,ingress.hosts[0].host=kibana.k8s.mevijay.dev,ingress.hosts[0].paths[0].path=/,ingress.tls[0].secretName=kibana-tls,ingress.tls[0].hosts[0]=kibana.k8s.mevijay.dev --repo=https://helm.elastic.co -n logging
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;dynamic-storage-provisioning&quot;&gt;Dynamic storage provisioning&lt;/h2&gt;
+&lt;p&gt;For the dynamic provisioning we need a storage class and rancher have the answer for this lab.&lt;/p&gt;
+&lt;h3 id=&quot;setup-the-provisioner&quot;&gt;Setup the provisioner&lt;/h3&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.23/deploy/local-path-storage.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Create a pvc and pod&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl create -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/examples/pvc/pvc.yaml
+kubectl create -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/examples/pod/pod.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;setup-monitoring-with-prometheus-and-grafana&quot;&gt;Setup monitoring with prometheus and grafana&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Download the hlem chart values.yaml file for both grafana and prometheus.
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;wget https://raw.githubusercontent.com/sharmavijay86/sharmavijay86.github.io/master/blog/k8ssetup/grafana-values.yaml
+wget https://raw.githubusercontent.com/sharmavijay86/sharmavijay86.github.io/master/blog/k8ssetup/prometheus-values.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Updates values based on your case. mainly the ingress part and storage part.&lt;/li&gt;
+  &lt;li&gt;Run the helm commands to deploy it all.
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;helm install prometheus prometheus --repo=https://prometheus-community.github.io/helm-charts -n prometheus --create-namespace
+helm install grafana grafana --repo=https://grafana.github.io/helm-charts  -f grafana-values.yaml -n prometheus
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        <pubDate>Thu, 16 Feb 2023 03:05:23 -0600</pubDate>
+        <link>http://0.0.0.0:4000/blog/k8s-cluster-lab-with-ubuntu-20-04/</link>
+        <guid isPermaLink="true">http://0.0.0.0:4000/blog/k8s-cluster-lab-with-ubuntu-20-04/</guid>
+      </item>
+    
+      <item>
+        <title>kind cluster install</title>
+        <description>&lt;h1 id=&quot;working-with-kind-cluster&quot;&gt;Working with kind cluster&lt;/h1&gt;
+&lt;h2 id=&quot;kind-kubernetes-cluster-lab-setup&quot;&gt;KIND kubernetes cluster lab setup.&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Kind&lt;/strong&gt; is a very good option for those who are just starting with kubernetes and dont have suffecient enough resources available. KIND i.e. &lt;strong&gt;&lt;em&gt;kubernetes in docker&lt;/em&gt;&lt;/strong&gt; is a binary file using which and docker you can create multiple node k8s cluster, all in docker container.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Steps&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Docker installation.&lt;/li&gt;
+  &lt;li&gt;Kind setup.&lt;/li&gt;
+  &lt;li&gt;Kind config file.&lt;/li&gt;
+  &lt;li&gt;Setup kind cluster
+ ### &lt;strong&gt;Docker Installation&lt;/strong&gt;&lt;/li&gt;
+  &lt;li&gt;Docker setup steps based on your linux flavor can be find in here.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Steps for Ubuntu &lt;a href=&quot;https://docs.docker.com/engine/install/ubuntu/&quot;&gt;Click here&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Steps for Fedora &lt;a href=&quot;https://docs.docker.com/engine/install/fedora/&quot;&gt;Click here&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Steps for RHEL/CentOS &lt;a href=&quot;https://docs.docker.com/engine/install/rhel/&quot;&gt;Click here&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;One script install is also possible here-
+&lt;a href=&quot;../dockersetup.md&quot;&gt; Script install &lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;kind-setup&quot;&gt;&lt;strong&gt;Kind Setup&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;Download and setup kind binary.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
+chmod +x ./kind
+sudo mv ./kind /usr/local/bin/kind
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Validate the version.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ kind version
+
+ kind v0.11.1 go1.16.4 linux/amd64
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h3 id=&quot;kind-config-file&quot;&gt;&lt;strong&gt;Kind config file&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;Preapre a file with required configuration. Bellow config is a sample which usage extra port mapping for ingress controller.&lt;/p&gt;
+
+&lt;p&gt;File content&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:
+    - containerPort: 80
+      hostPort: 80
+      listenAddress: &quot;0.0.0.0&quot;
+      protocol: TCP
+    - containerPort: 443
+      hostPort: 443
+      listenAddress: &quot;0.0.0.0&quot;
+      protocol: TCP
+    kubeadmConfigPatches:
+    - |
+      kind: InitConfiguration
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-labels: &quot;ingress-ready=true&quot;
+networking:
+  kubeProxyMode: &quot;ipvs&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;File can be found &lt;a href=&quot;kind-config.yaml&quot;&gt;here&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;setup-kind-cluster&quot;&gt;&lt;strong&gt;Setup Kind cluster&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;p&gt;You can now setup kind cluster by using bellow command.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kind create cluster --name kind --config kind-config.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;check the cluster status&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kind get clusters
+
+docker ps
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;To manage the cluster you need kubectl command. Get it setup with this process defined-&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;curl -LO &quot;https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl&quot;
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Now check kind status with kubectl command.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl get node
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h2 id=&quot;setup-metric&quot;&gt;Setup metric&lt;/h2&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply -f https://raw.githubusercontent.com/sharmavijay86/sharmavijay86.github.io/master/blog/k8ssetup/components.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h2 id=&quot;setup-ingress&quot;&gt;Setup Ingress&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Install nginx ingress&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Above is patched version for mainly kind. Please note we have already exposed port 80 and 443 in config yaml file so 80 would be listening on kind host node at 127.0.0.1:80 and 127.0.0.1:443&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Setup sample foo bar ingres.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/usage.yaml
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;ol&gt;
+  &lt;li&gt;check it .&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;curl localhost/foo
+curl localhost/bar
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Above is working means we have setup corectly our kind cluster along with nginx ingress controller.&lt;/p&gt;
+
+&lt;h2 id=&quot;how-to-expose-api-for-remote-access&quot;&gt;how to expose API for remote access&lt;/h2&gt;
+&lt;p&gt;You see we have exposed nodeport to host machine NIC interface, that is why you can access ingresson kind host ip address. If you wish to access this k8s server from remote machine, then you need api server also to expose on hostport.&lt;/p&gt;
+
+&lt;p&gt;This just need a configuration line to put in networking section.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:
+    - containerPort: 80
+      hostPort: 80
+      listenAddress: &quot;0.0.0.0&quot;
+      protocol: TCP
+    - containerPort: 443
+      hostPort: 443
+      listenAddress: &quot;0.0.0.0&quot;
+      protocol: TCP
+    kubeadmConfigPatches:
+    - |
+      kind: InitConfiguration
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-labels: &quot;ingress-ready=true&quot;
+networking:
+  kubeProxyMode: &quot;ipvs&quot;
+  apiServerAddress: &quot;192.168.56.101&quot;
+  apiServerPort: 6443
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Check the services nginx ingress.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;kubectl create deploy webapp --image=nginx:1.22
+kubectl expose deploy webapp --port=8080 --target-port=80
+kubectl create ingress webapp --class=nginx --rule=&quot;abc.lan/*=webappp:80&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Now make an entry in hosts file for abc.lan and check in browser.&lt;/p&gt;
+
+&lt;h3 id=&quot;ingress-with-config-map-in-nginx122&quot;&gt;Ingress with config map in nginx:1.22&lt;/h3&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;apiVersion: v1
+data:
+  index.html: |
+    &amp;lt;h1&amp;gt;Hello from testing CM mount&amp;lt;/h1&amp;gt;
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: foo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: webcm
+  name: webcm
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webcm
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: webcm
+    spec:
+      containers:
+      - image: nginx:alpine
+        name: nginx
+        volumeMounts:
+          - name: foo
+            mountPath: &quot;/usr/share/nginx/html/&quot;
+      volumes:
+      - name: foo
+        configMap:
+           name: foo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: webcm
+  name: webcm
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: webcm
+status:
+  loadBalancer: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  creationTimestamp: null
+  name: webcm
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ckatcswebcm.lab
+    http:
+      paths:
+      - backend:
+          service:
+            name: webcm
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer: {}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h3 id=&quot;etcd-backup-and-restore&quot;&gt;ETCD backup and restore&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;etcd-bkp-restore.md&quot;&gt;ETCD Backup and restore process&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Wed, 18 Jan 2023 09:05:23 -0600</pubDate>
+        <link>http://0.0.0.0:4000/blog/easy-way-to-kind-k8s-cluster-install/</link>
+        <guid isPermaLink="true">http://0.0.0.0:4000/blog/easy-way-to-kind-k8s-cluster-install/</guid>
+      </item>
+    
+
+    
+      
+        
+      
+    
+      
+    
+      
+        
+          <item>
+            <title></title>
+            <description>&lt;h3&gt;   &lt;/h3&gt;
+
+&lt;div id=&quot;categories&quot;&gt;
+
+  &lt;div class=&quot;category-box&quot;&gt;
+    
+    &lt;div id=&quot;#k8s&quot;&gt;&lt;/div&gt;
+    &lt;h4 class=&quot;category-head&quot;&gt;&lt;a href=&quot;/blog/categories/k8s&quot;&gt;k8s&lt;/a&gt;&lt;/h4&gt;
+    &lt;a name=&quot;k8s&quot;&gt;&lt;/a&gt;
+     
+    &lt;article class=&quot;center&quot;&gt;
+      &lt;h6&gt;&lt;a href=&quot;/blog/openshift4-all-in-one-setup/&quot;&gt;Openshift4 all in one setup&lt;/a&gt;&lt;/h6&gt;
+    &lt;/article&gt;
+
+
+    
+    &lt;article class=&quot;center&quot;&gt;
+      &lt;h6&gt;&lt;a href=&quot;/blog/oauth2-proxy-for-all-k8s-app/&quot;&gt;oauth2-proxy-for-all-k8s-app&lt;/a&gt;&lt;/h6&gt;
+    &lt;/article&gt;
+
+
+    
+    &lt;article class=&quot;center&quot;&gt;
+      &lt;h6&gt;&lt;a href=&quot;/blog/easy-way-of-mysql-multimaster-setup/&quot;&gt;Mysql replication setup&lt;/a&gt;&lt;/h6&gt;
+    &lt;/article&gt;
+
+
+    
+    &lt;article class=&quot;center&quot;&gt;
+      &lt;h6&gt;&lt;a href=&quot;/blog/setup-powerdns-with-recursor-and-web-ui/&quot;&gt;powerdns setup with recursor and pdnsmanager webui&lt;/a&gt;&lt;/h6&gt;
+    &lt;/article&gt;
+
+
+    
+    &lt;article class=&quot;center&quot;&gt;
+      &lt;h6&gt;&lt;a href=&quot;/blog/k8s-cluster-lab-with-ubuntu-20-04/&quot;&gt;simple kubernetes cluster lab on ubuntu&lt;/a&gt;&lt;/h6&gt;
+    &lt;/article&gt;
+
+
+    
+    &lt;article class=&quot;center&quot;&gt;
+      &lt;h6&gt;&lt;a href=&quot;/blog/easy-way-to-kind-k8s-cluster-install/&quot;&gt;kind cluster install&lt;/a&gt;&lt;/h6&gt;
+    &lt;/article&gt;
+
+
+    
+
+  &lt;/div&gt;
+
+&lt;/div&gt;
+
+</description>
+            <link>http://0.0.0.0:4000/blog/categories/</link>
+          </item>
+        
+      
+    
+      
+    
+      
+        
+          <item>
+            <title>devops</title>
+            <description>&lt;h5&gt; Posts by Category : devops &lt;/h5&gt;
+
+&lt;div class=&quot;card&quot;&gt;
+
+&lt;/div&gt;
+</description>
+            <link>http://0.0.0.0:4000/blog/categories/devops/</link>
+          </item>
+        
+      
+    
+      
+    
+      
+        
+          <item>
+            <title>gcp cloud</title>
+            <description>&lt;h5&gt; Posts by Category : {{ page.title }} &lt;/h5&gt;
+
+&lt;div class=&quot;card&quot;&gt;
+{% for post in site.categories.jekyll %}
+ &lt;li class=&quot;category-posts&quot;&gt;&lt;span&gt;{{ post.date | date_to_string }}&lt;/span&gt; &amp;nbsp; &lt;a href=&quot;{{ post.url }}&quot;&gt;{{ post.title }}&lt;/a&gt;&lt;/li&gt;
+{% endfor %}
+&lt;/div&gt;</description>
+            <link>http://0.0.0.0:4000/blog/categories/gcp/</link>
+          </item>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+        
+          <item>
+            <title>Get Started</title>
+            <description>## Getting Started - How to use “devlopr-jekyll” theme
+
+## What&apos;s Jekyll ?
+
+If you aren’t familiar with Jekyll yet, you should know that it is a static site generator. It will transform your plain text into static websites and blogs. No more databases, slow loading websites, risk of being hacked…just your content. And not only that, with Jekyll you get free hosting with GitHub Pages! If you are a beginner we recommend you start with [Jekyll’s Docs](https://jekyllrb.com/docs/installation/). Now, if you know how to use Jekyll, let’s move on to using this theme in Jekyll:
+
+## Watch Tutorial
+
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/cXBEfpn0qrg?rel=0&amp;amp;controls=0&amp;amp;showinfo=0&quot; title=&quot;YouTube video player&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture&quot; allowfullscreen&gt;&lt;/iframe&gt;
+
+
+### Steps to create your blog using devlopr-jekyll and Host using Github Pages :
+
+&gt;  **Step 1.**  Fork the repo - [click here](https://github.com/sujaykundu777/devlopr-jekyll/fork)
+
+![Devlopr Jekyll Repo](/assets/img/posts/fork1.PNG){:class=&quot;img-fluid&quot;}
+
+&gt; **Step 2.** Use **your-github-username.github.io** as the new repo  ( Replace your-github-username with yours). Remember if you use the name other than your-github-username.github.io , your blog will be built using gh-pages branch.
+
+![Devlopr Jekyll Repo](/assets/img/posts/fork2.PNG){:class=&quot;img-fluid&quot;}
+
+![Devlopr Jekyll Repo](/assets/img/posts/fork3.PNG){:class=&quot;img-fluid&quot;}
+
+&gt; **Step 3.** Clone the new repo locally to make changes :
+
+![Devlopr Jekyll Repo](/assets/img/posts/fork31.PNG){:class=&quot;img-fluid&quot;}
+
+![Devlopr Jekyll Repo](/assets/img/posts/fork32.PNG){:class=&quot;img-fluid&quot;}
+
+![Devlopr Jekyll Repo](/assets/img/posts/fork33.PNG){:class=&quot;img-fluid&quot;}
+
+```bash
+ $ git clone https://github.com/yourusername/yourusername.github.io
+ $ cd yourusername.github.io
+ $ code .
+```
+
+&gt; **Step 4.** Open the files using VSCode and edit _config.yml and edit with your details:
+
+- _config.yml file - replace with your own details
+- _posts - Add your blog posts here
+- _includes - You can replace the contents of the files with your data. (contains widgets)
+- _assets/img - Add all your images here
+
+![Devlopr Jekyll Repo](/assets/img/posts/fork34.PNG){:class=&quot;img-fluid&quot;}
+
+&gt; **Step 5** - Install the development requirements:
+
+### Set up local development environment
+
+1. [Git](https://git-scm.com/)
+2. [Ruby](https://www.ruby-lang.org/) and [Bundler](https://bundler.io/)
+3. [VSCode](https://code.visualstudio.com/download)
+
+We need ruby and bundler to build our site locally. After installation check if its working:
+
+For ruby :
+
+```bash
+$ ruby -v
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-linux-gnu]
+```
+For bundler :
+
+```bash
+$ gem install bundler
+$ bundler -v
+Bundler version 2.2.29
+```
+Add jekyll :
+
+```bash
+$ bundle update
+$ bundle add jekyll
+```
+ This command will add the Jekyll gem to our Gemfile and install it to the ./vendor/bundle/ folder.
+
+You can check the jekyll version
+
+```
+$ bundle exec jekyll -v
+jekyll 4.2.0
+```
+
+&gt; **Step 6.** Install the gem dependencies by running the following command
+
+```bash
+$ bundle update
+$ bundle install
+```
+
+&gt; **Step 7.** Serve the site locally by running the following command below:
+
+```bash
+$ bundle exec jekyll serve --watch
+```
+or you can also serve using :
+
+```bash
+$ jekyll serve
+```
+
+Visit [http://localhost:4000](http://localhost:4000) for development server
+
+![Devlopr Jekyll Repo](/assets/img/posts/fork41.PNG){:class=&quot;img-fluid&quot;}
+
+
+### Adding Content
+
+Start populating your blog by adding your .md files in _posts. devlopr-jekyll already has a few examples.
+
+#### YAML Post Example:
+
+```yml
+---
+layout: post
+title: Sample Post
+author: Sujay Kundu
+date: &apos;2019-05-21 14:35:23 +0530&apos;
+category:
+        - jekyll
+summary: This is the summary for the sample post
+thumbnail: sample.png
+---
+
+Hi ! This is sample post.
+
+```
+
+#### YAML Page Example:
+
+```yml
+---
+layout: page
+title: Sample Page
+permalink: /sample-page/
+---
+
+Hi ! This is sample page.
+```
+
+#### Editing stylesheet
+
+You’ll only work with a single file to edit/add theme style: assets/css/main.scss.
+
+### Deploy your Changes
+
+Once happy with your blog changes. Push your changes to master branch.
+
+&gt; **Step 8.** Push Your Local Changes
+
+```bash
+ $ git add .
+ $ git commit -m &quot;my new blog using devlopr-jekyll&quot;
+ $ git push origin master
+```
+
+Visit your Github Repo settings ! Enable master branch as Github Pages Branch :
+
+![Devlopr Jekyll Repo](/assets/img/posts/fork6.PNG){:class=&quot;img-fluid&quot;}
+
+&gt; **Step 9.** Deploy your Blog :
+
+![Devlopr Jekyll Repo](/assets/img/posts/fork7.PNG){:class=&quot;img-fluid&quot;}
+
+&gt; Congrats ! On your new shining Blog !
+
+You can visit the blog using [http://your-github-username.github.io](http://your-github-username.github.io).
+
+</description>
+            <link>http://0.0.0.0:4000/get-started/</link>
+          </item>
+        
+      
+    
+      
+        
+          <item>
+            <title>kubernetes</title>
+            <description>&lt;h5&gt; Posts by Category : {{ page.title }} &lt;/h5&gt;
+
+&lt;div class=&quot;card&quot;&gt;
+{% for post in site.categories.guides %}
+ &lt;li class=&quot;category-posts&quot;&gt;&lt;span&gt;{{ post.date | date_to_string }}&lt;/span&gt; &amp;nbsp; &lt;a href=&quot;{{ post.url }}&quot;&gt;{{ post.title }}&lt;/a&gt;&lt;/li&gt;
+{% endfor %}
+&lt;/div&gt;</description>
+            <link>http://0.0.0.0:4000/blog/categories/k8s/</link>
+          </item>
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+
+  </channel>
+</rss>

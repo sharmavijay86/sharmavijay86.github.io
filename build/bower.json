@@ -1,0 +1,22 @@
+{
+  "name": "Vijay K.",
+  "homepage": "https://github.com/sharmavijay86/sharmavijay86",
+  "authors": [
+    "vijay K. <vijay@mevijay.com"
+  ],
+  "description": "",
+  "main": "",
+  "keywords": [
+    "Vijay K",
+    "cloud",
+    "DevOps"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
