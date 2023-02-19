@@ -1,6 +1,6 @@
 ---
 name: vijay kumar
-username: vijayk
+username: vijay
 bio: "Hi I am Vijay K., a Consultent, Architect and trainer in Public cloud, Kubernetes & DevOps."
 site: https://mevijay.com
 avatar: vijayk.png
