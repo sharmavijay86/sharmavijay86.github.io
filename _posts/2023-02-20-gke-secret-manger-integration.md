@@ -1,0 +1,134 @@
+---
+layout: post
+title:  "GCP Secret manager integration with GKE"
+summary: "GCP Secret manager integration with GKE"
+author: vijayk
+date: '2023-02-20 2:35:23 +0530'
+category: k8s
+thumbnail: /assets/img/posts/kubernetes3.jpg
+keywords: 
+permalink: /blog/gcp-secret-manager-integration-with-gke/
+usemathjax: true
+---
+
+
+# GKE Secret Manager. Environment setup
+
+This repo contains examples of how to consume secrets from [Google Secret Manager (GSM)](https://cloud.google.com/secret-manager) from [Google Kubernetes Engine (GKE)](https://cloud.google.com/kubernetes-engine)
+
+This main README file contains the steps needed to prepare the environment for the various example. Each sub-folder contains an example, each example will send you to this main page to prepare the GKE cluster, secrets and IAM before you can proceed. Start by check the example you want to follow and follow the instructions from there
+
+## Prepare environment
+
+```bash
+export PROJECT_ID=db-pso-project
+export GKE_ZONE=europe-west6-a
+export GKE_REGION=europe-west6
+```
+
+## Create Cluster
+
+```bash
+gcloud container clusters create gke-secret-manager \
+    --project ${PROJECT_ID} \
+    --zone ${GKE_ZONE} \
+    --release-channel "rapid" \
+    --workload-pool "${PROJECT_ID}.svc.id.goog" \
+    --scopes=gke-default,cloud-platform
+```
+
+## Fetch Credentials for the cluster
+
+```bash
+gcloud container clusters get-credentials gke-secret-manager \
+    --project ${PROJECT_ID} \
+    --zone ${GKE_ZONE} \
+```
+
+## Create a secret
+
+```bash
+echo -n "mypassword" | gcloud secrets create my-db-password \
+    --project ${PROJECT_ID} \
+    --replication-policy automatic \
+    --data-file=-
+```
+
+## Verify the secret
+
+```bash
+gcloud secrets versions access 1 --secret my-db-password
+```
+
+## Setup Workload Identity
+
+### Create a Google Service Account (GSA)
+
+```bash
+gcloud iam service-accounts create secret-gsa --project ${PROJECT_ID}
+```
+
+### Grant the GSA the secretAccessor role on the previously created Secret
+
+```bash
+gcloud secrets add-iam-policy-binding my-db-password \
+    --project ${PROJECT_ID} \
+    --member="serviceAccount:secret-gsa@${PROJECT_ID}.iam.gserviceaccount.com" \
+    --role="roles/secretmanager.secretAccessor"
+```
+
+### Create a Kubernetes Service Account (KSA)
+
+```bash
+kubectl create sa --namespace default secret-ksa
+```
+
+### Allow the KSA to impersonate the GSA
+
+```bash
+gcloud iam service-accounts add-iam-policy-binding \
+    secret-gsa@${PROJECT_ID}.iam.gserviceaccount.com \
+    --role roles/iam.workloadIdentityUser \
+    --member "serviceAccount:${PROJECT_ID}.svc.id.goog[default/secret-ksa]"
+```
+
+### Annotate the KSA
+
+```bash
+kubectl annotate serviceaccount \
+    --namespace default secret-ksa  \
+    iam.gke.io/gcp-service-account=secret-gsa@${PROJECT_ID}.iam.gserviceaccount.com
+```
+
+### (Optional) Enable Data access logs on GSM
+
+In this step you will enable the Data access Logs on the Google Secret Manager service to check who accesses the logs. This will allow you to answer the question: Which identity (Service Account or User) have read my secret.
+
+If you have such security requirements this step can be acheived via the [console](https://cloud.google.com/logging/docs/audit/configure-data-access#config-console) or via the cli following the instructions below
+
+Download the IAM policy of the project to a temp file
+
+```bash
+gcloud projects get-iam-policy ${PROJECT_ID} > policy.yaml
+```
+
+Edit the ```policy.yaml``` file and add the following section to the same level as ```bindings``` (if you already have an auditConfigs section, append the content below)
+
+```bash
+auditConfigs:
+- auditLogConfigs:
+  - logType: DATA_READ
+  service: secretmanager.googleapis.com
+```
+
+Apply the new policy
+
+```bash
+gcloud projects set-iam-policy ${PROJECT_ID} policy.yaml
+```
+
+Check the policy have been applied 
+
+```bash
+gcloud projects get-iam-policy ${PROJECT_ID}
+```
