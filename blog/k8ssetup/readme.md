@@ -117,9 +117,7 @@ kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/we
 Apply deployment manifests-
 ```
 kubectl get configmap kube-proxy -n kube-system -o yaml | sed -e "s/strictARP: false/strictARP: true/" | kubectl apply -f - -n kube-system
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/namespace.yaml
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.6/manifests/metallb.yaml
-kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.12/config/manifests/metallb-native.yaml
 ```
 Create yaml for ip pool 
 ```
@@ -127,18 +125,15 @@ vim ip-pool.yaml
 ```
 Apply the ip pool for LB. Create and modify values based on your network.
 ```
-apiVersion: v1
-kind: ConfigMap
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
 metadata:
+  name: first-pool
   namespace: metallb-system
-  name: config
-data:
-  config: |
-    address-pools:
-    - name: default
-      protocol: layer2
-      addresses:
-      - 192.168.122.20-192.168.122.30
+spec:
+  addresses:
+  - 192.168.1.240-192.168.1.250
+
 ```
 Apply
 ```
@@ -183,7 +178,7 @@ helm install nfsclient nfs-subdir-external-provisioner --repo https://kubernetes
 ## Setup Cert-manager   
 
 ```
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.0/cert-manager.yaml
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
 ```
 
 ## Setup metrics-server  
