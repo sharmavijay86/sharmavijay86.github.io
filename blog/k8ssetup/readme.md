@@ -124,7 +124,8 @@ Create yaml for ip pool
 vim ip-pool.yaml
 ```
 Apply the ip pool for LB. Create and modify values based on your network.
-```
+```yaml
+---
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
@@ -132,7 +133,14 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-  - 192.168.1.240-192.168.1.250
+  - 192.168.1.100-192.168.1.125
+
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: l2advert
+  namespace: metallb-system
 
 ```
 Apply
