@@ -22,6 +22,12 @@ You have 2 diffrent CRI options to use:
 
 Bellow are steps to install either of one.   
 ### To install containerd.
+If you already have docker installed, with containerd then run this command
+```bash
+sudo sed -i '/^disable/s/^/#/' /etc/containerd/config.toml
+sudo systemctl restart containerd
+```
+otherwise for a fresh containerd use bellow command to install. ( in case of docker-ce, containerd gets installed already)
 ```
 sudo apt install containerd -y
 ```
