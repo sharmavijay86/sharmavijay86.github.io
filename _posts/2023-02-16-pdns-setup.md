@@ -2,7 +2,7 @@
 layout: post
 title:  "powerdns setup with recursor and pdnsmanager webui"
 summary: "powerdns setup with recursor and pdnsmanager webui"
-author: vijayk
+author: vijay
 date: '2023-02-16 16:35:23 +0530'
 category: k8s
 thumbnail: /assets/img/posts/kubernetes3.jpg

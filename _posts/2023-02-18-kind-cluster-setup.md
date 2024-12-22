@@ -2,7 +2,7 @@
 layout: post
 title:  "kind cluster install"
 summary: "a Full kubernetes lab with docker and kind "
-author: vijayk
+author: vijay
 date: '2023-01-18 20:35:23 +0530'
 category: k8s
 thumbnail: /assets/img/posts/kubernetes3.jpg

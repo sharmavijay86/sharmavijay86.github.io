@@ -2,7 +2,7 @@
 layout: post
 title:  "oauth2-proxy-for-all-k8s-app"
 summary: "oauth2-proxy-for-all-k8s-app"
-author: vijayk
+author: vijay
 date: '2023-02-18 18:35:23 +0530'
 category: k8s
 thumbnail: /assets/img/posts/kubernetes3.jpg

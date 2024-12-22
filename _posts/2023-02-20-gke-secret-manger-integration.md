@@ -2,7 +2,7 @@
 layout: post
 title:  "GCP Secret manager integration with GKE"
 summary: "GCP Secret manager integration with GKE"
-author: vijayk
+author: vijay
 date: '2023-02-20 2:35:23 +0530'
 category: k8s
 thumbnail: /assets/img/posts/kubernetes3.jpg

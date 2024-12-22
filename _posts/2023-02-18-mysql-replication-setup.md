@@ -2,7 +2,7 @@
 layout: post
 title:  "Mysql replication setup"
 summary: "mysql replication setup"
-author: vijayk
+author: vijay
 date: '2023-02-18 16:35:23 +0530'
 category: k8s
 thumbnail: /assets/img/posts/devops.jpg

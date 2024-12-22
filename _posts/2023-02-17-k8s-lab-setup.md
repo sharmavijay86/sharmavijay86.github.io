@@ -2,7 +2,7 @@
 layout: post
 title:  "simple kubernetes cluster lab on ubuntu"
 summary: "simple kubernetes CKA cluster lab on ubuntu"
-author: vijayk
+author: vijay
 date: '2023-02-16 14:35:23 +0530'
 category: k8s
 thumbnail: /assets/img/posts/kubernetes3.jpg

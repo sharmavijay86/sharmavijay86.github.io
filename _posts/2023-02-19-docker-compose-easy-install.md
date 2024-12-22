@@ -2,7 +2,7 @@
 layout: post
 title:  "how to setup docker compose with example"
 summary: "how to setup docker compose with example"
-author: vijayk
+author: vijay
 date: '2023-02-19 08:35:23 +0530'
 category: k8s
 thumbnail: /assets/img/posts/kubernetes3.jpg
