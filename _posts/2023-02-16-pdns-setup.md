@@ -4,8 +4,8 @@ title:  "powerdns setup with recursor and pdnsmanager webui"
 summary: "powerdns setup with recursor and pdnsmanager webui"
 author: vijay
 date: '2023-02-16 16:35:23 +0530'
-category: k8s
-thumbnail: /assets/img/posts/kubernetes3.jpg
+category: devops
+thumbnail: /assets/img/posts/devops.jpg
 keywords: 
 permalink: /blog/setup-powerdns-with-recursor-and-web-ui/
 usemathjax: true

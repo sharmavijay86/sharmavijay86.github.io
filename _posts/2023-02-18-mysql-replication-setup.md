@@ -4,7 +4,7 @@ title:  "Mysql replication setup"
 summary: "mysql replication setup"
 author: vijay
 date: '2023-02-18 16:35:23 +0530'
-category: k8s
+category: devops
 thumbnail: /assets/img/posts/devops.jpg
 keywords: 
 permalink: /blog/easy-way-of-mysql-multimaster-setup/
