@@ -12,43 +12,40 @@ usemathjax: true
 ---
 
 ## Setup powerdns with recursor and pdnsmanager web ui   
-In ubuntu there would be systemdresolver already running on port 53, hence we will first disable that.   
-```
-root@pdns:~# systemctl stop systemd-resolved
-root@pdns:~# systemctl disable systemd-resolved
-root@pdns:~# systemctl mask systemd-resolved
+- In ubuntu there would be systemdresolver already running on port 53, hence we will first disable that.   
+```bash
+systemctl stop systemd-resolved
+systemctl disable systemd-resolved
+systemctl mask systemd-resolved
 ```   
-Now open resolv file and keep entry whatever you requires.   
-Note : This is just for information if you want to make entries static install packages ifupdown and resolvconf   
+- Now open resolv file and keep entry whatever you requires.   
+**Note:** This is just for information if you want to make entries static install packages ifupdown and resolvconf   
 
-```
-vim /etc/resolv.conf
-
-echo "deb http://repo.powerdns.com/ubuntu bionic-auth-41 main" >> /etc/apt/sources.list.d/powerdns.list
-
-```   
-enable repository   
-```
-vim /etc/apt/preferences.d/powerdns
-Package: pdns-*
-Pin: origin repo.powerdns.com
-Pin-Priority: 600
-
-curl -s https://repo.powerdns.com/FD380FBB-pub.asc | sudo apt-key add -
-```   
-Now install packages   
-```
+  
+```bash
 apt update
 apt-get install pdns-server pdns-recursor pdns-backend-mysql mysql-server -y
 ```
+- Create database and user for pdns.
+```sql
+create database pdns;
+create user pdns@localhost identified by pdns;
+create user pdns@localhost identified by 'pdns';
+grant all on pdns.* to pdns@localhost;
 
-Once packages get installed edit pdns config file to make required changes   
 ```
+- import the sql schema
+```bash
+mysql pdns < /usr/share/pdns-backend-mysql/schema/schema.mysql.sql 
+```
+
+- Now edit pdns config file to make required changes   
+```bash
 vim /etc/powerdns/pdns.conf
 ```   
 set bellow entries
 
-```
+```bash
 allow-axfr-ips=127.0.0.1 <ip of your secondary nameserver>
 config-dir=/etc/powerdns
 daemon=yes
@@ -65,11 +62,15 @@ socket-dir=/var/run
 version-string=powerdns
 include-dir=/etc/powerdns/pdns.d
 ```   
-
 save and exit   
-Now we will setup powerdns recursor   
-
+Lets validate if configuration is correct.
+```bash
+pdns_server --daemon=no --guardian=no --loglevel=9
 ```
+
+- Now we will setup powerdns recursor   
+
+```bash
 vim /etc/powerdns/recursor.conf
 
 forward-zones=mylab.local=127.0.0.1:54
@@ -79,7 +80,7 @@ local-port=53
 ```   
 you can use your own forwarders in above config instead 1.1.1.1 and 8.8.8.8
 edit mysql for pdns now   
-```
+```bash
 vim /etc/powerdns/pdns.d/pdns.local.gmysql.conf 
 
 launch=gmysql
@@ -91,54 +92,38 @@ gmysql-user=pdns
 gmysql-password=pdns
 gmysql-dnssec=no
 ```   
-save and exit    
-restart services    
+save and exit   
+- Lets validate if configuration is correct.
+```bash
+pdns_server --daemon=no --guardian=no --loglevel=9
 ```
+- Restart services    
+```bash
 systemctl restart pdns
 systemctl restart pdns-recursor
 ```    
 Now we will create and setup mysql database for dns records    
-Lets tune some mysql entries for more read request    
-```
-vim /etc/mysql/mysql.conf.d/mysqld.cnf
 
-
---- InnoDB section
-innodb_log_file_size = 64M
-default-storage-engine=INNODB
-innodb_buffer_pool_size=1G
-innodb_buffer_pool_instances = 2
-innodb_autoinc_lock_mode = 2
-innodb_doublewrite = 1
-innodb_file_per_table = 1
-innodb_flush_log_at_trx_commit = 2
-innodb_lock_wait_timeout = 60
-innodb_locks_unsafe_for_binlog = 1
-innodb_stats_on_metadata = 0
-transaction-isolation=READ-COMMITTED
-
-service mysql restart
-```    
-create database and user   
-```
-mysql> create database powerdns;
-mysql> grant all on powerdns.* to 'pdns'@'localhost' identified by 'secret';
+- create database and user   
+```sql
+create database powerdns;
+grant all on powerdns.* to 'pdns'@'localhost' identified by 'secret';
 ```    
 #### Setting up pdnsmanager    
 
 Install required php and apache packages
 
-```
+```bash
 apt install php php-apcu php-mysql apache2 -y
 ```   
 Enable apache modules   
-```
+```bash
 a2enmod rewrite 
 a2enmod ssl
 ```   
 Setup virtual host in apache   
 
-```
+```bash
 vim /etc/apache2/sites-enabled/default.conf
 
 <VirtualHost _default_:443>
@@ -168,7 +153,7 @@ vim /etc/apache2/sites-enabled/default.conf
 Make changes in above as per your need ( keep ssl settingsi have not included them )   
 Now get the webui package download , untar and set
 
-```
+```bash
 wget https://dl.pdnsmanager.org/pdnsmanager-2.0.1.tar.gz
 tar -xvf pdnsmanager-2.0.1.tar.gz
 cd pdnsmanager-2.0.1
