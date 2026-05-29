@@ -1,15 +1,44 @@
+<!-- Blog sidebar -->
+<aside class="w-full lg:w-72 flex-shrink-0 space-y-6">
 
-<div class="col-lg-4">
-    <div class="card">
-        <div class="card-header">Categories </div>
-        <div class="card-body text-dark">
-            {%- include blog_categories.html -%}
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header">Authors </div>
-            <div class="card-body text-dark">
-                {%- include blog_authors.html -%}
-            </div>
+  <!-- Categories card -->
+  <div class="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700/60 p-5">
+    <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+      <i class="fas fa-folder-open text-brand-500 text-xs"></i>
+      Categories
+    </h3>
+    <ul class="space-y-1">
+      {% for tag in site.categories %}
+      {% capture tag_name %}{{ tag | first }}{% endcapture %}
+      <li>
+        <a href="{{ site.baseurl }}/blog/categories/{{ tag_name | slugize }}"
+           class="flex items-center justify-between px-3 py-2 rounded-lg text-sm text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors group">
+          <span class="group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{{ tag_name }}</span>
+          <span class="text-xs bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full">
+            {{ tag | last | size }}
+          </span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- About the author mini card -->
+  <div class="bg-gradient-to-br from-brand-600 to-indigo-700 rounded-2xl p-5 text-white">
+    <div class="flex items-center gap-3 mb-3">
+      <img src="{{ site.url }}{{ site.baseurl }}/assets/img/{{ site.author_logo }}"
+           alt="{{ site.author }}"
+           class="w-10 h-10 rounded-full ring-2 ring-white/30 object-cover" />
+      <div>
+        <p class="font-semibold text-sm">{{ site.author }}</p>
+        <p class="text-blue-200 text-xs">DevOps &amp; Cloud Architect</p>
       </div>
-</div>
+    </div>
+    <p class="text-blue-100 text-xs leading-relaxed mb-4">17+ years of experience in Cloud, Kubernetes, and DevOps engineering.</p>
+    <a href="{{ site.url }}{{ site.baseurl }}/about"
+       class="block text-center bg-white/20 hover:bg-white/30 text-white text-xs font-semibold py-2 rounded-lg transition-colors">
+      View Profile
+    </a>
+  </div>
+
+</aside>

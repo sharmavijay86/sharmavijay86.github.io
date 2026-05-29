@@ -1,69 +1,103 @@
+<!-- Modern glassmorphism navbar -->
+<header class="fixed top-0 w-full z-50 transition-all duration-300" id="site-header">
+  <nav class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-700/60 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
 
-        <nav class="navbar navbar-expand-lg fixed-top navbar-dark" id="topNav">
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="icono-hamburger" id="navbar-hamburger"> </span>
-          </button>
-          <a class="navbar-brand" href="/">{{site.title}}</a>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-              {% for i in site.urls %}
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  href="{{ site.url}}{{site.baseurl}}{{ i.url }}"
-                  >{{ i.text }}</a
-                >
-              </li>
-              {% endfor %}
-
-            </ul>
+        <!-- Brand -->
+        <a href="/" class="flex items-center space-x-2 group">
+          <div class="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-700 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-brand-500/40 transition-shadow">
+            <span class="text-white font-bold text-sm">{{ site.title | slice: 0 }}</span>
           </div>
-          <ul class="nav justify-content-end">
-            <li class="nav-item">
-              <a class="nav-link toggle-search-button" href="#search">
-                <i class="fa fa-search search-icon" aria-hidden="true"></i>
-              </a>
-            </li>
+          <span class="text-slate-900 dark:text-white font-bold text-lg tracking-tight">{{ site.title }}</span>
+        </a>
 
-            <li class="nav-item"> 
-              <input
-                class="nav-link switch theme-toggle"
-                type="checkbox"
-                name="checkbox"
-              />
-            </li>
-          </ul>
-        </nav>
-        <div id="progress-bar"></div>
-        <!-- Search Form -->
-        <div class="search-form-container">
-
-          <form class="search-form">
-            <fieldset class="search-form__fieldset">
-              <div class="row">
-                <div class="col-lg-8 offset-md-2">
-                  <input class="search-form__field" placeholder="Type to Search..." autofocus>
-                  <input class="search-form__submit" type="submit" value="search">
-                </div>
-              </div>
-            </fieldset>
-          </form>
-
-          <div class="row">
-            <div class="col-lg-8 offset-md-2 search-results">
-              <div class="card search-results"></div>
-            </div>
-          </div>
-
-          <div class="close-search-button search-form-container__close">
-              <i class="fa fa-times icon"></i>
-          </div>
+        <!-- Desktop nav links -->
+        <div class="hidden md:flex items-center space-x-1">
+          {% for i in site.urls %}
+          <a href="{{ site.url }}{{ site.baseurl }}{{ i.url }}"
+             class="px-4 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 font-medium text-sm transition-all duration-150">
+            {{ i.text }}
+          </a>
+          {% endfor %}
         </div>
+
+        <!-- Right controls -->
+        <div class="flex items-center space-x-2">
+
+          <!-- Dark mode toggle -->
+          <button id="theme-toggle"
+                  aria-label="Toggle dark mode"
+                  class="w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-150">
+            <i class="fas fa-moon text-sm dark:hidden"></i>
+            <i class="fas fa-sun text-sm hidden dark:block"></i>
+          </button>
+
+          <!-- Mobile menu toggle -->
+          <button id="mobile-menu-btn"
+                  aria-label="Open menu"
+                  class="md:hidden w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-150">
+            <i class="fas fa-bars text-sm" id="menu-icon-open"></i>
+            <i class="fas fa-times text-sm hidden" id="menu-icon-close"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 dark:border-slate-700">
+      <div class="max-w-7xl mx-auto px-4 py-3 space-y-1">
+        {% for i in site.urls %}
+        <a href="{{ site.url }}{{ site.baseurl }}{{ i.url }}"
+           class="block px-4 py-2.5 rounded-lg text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 font-medium text-sm transition-colors">
+          {{ i.text }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+  </nav>
+</header>
+
+<!-- Scroll-progress bar -->
+<div id="scroll-progress"
+     class="fixed top-16 left-0 h-0.5 bg-gradient-to-r from-brand-500 to-indigo-500 z-40 transition-all duration-100"
+     style="width: 0%">
+</div>
+
+<!-- Spacer for fixed header -->
+<div class="h-16"></div>
+
+<script>
+  // Mobile menu toggle
+  var btn = document.getElementById('mobile-menu-btn');
+  var menu = document.getElementById('mobile-menu');
+  var iconOpen = document.getElementById('menu-icon-open');
+  var iconClose = document.getElementById('menu-icon-close');
+  btn.addEventListener('click', function() {
+    var isHidden = menu.classList.toggle('hidden');
+    iconOpen.classList.toggle('hidden', !isHidden);
+    iconClose.classList.toggle('hidden', isHidden);
+  });
+
+  // Dark mode toggle
+  document.getElementById('theme-toggle').addEventListener('click', function() {
+    var html = document.documentElement;
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    } else {
+      html.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    }
+  });
+
+  // Scroll progress bar
+  window.addEventListener('scroll', function() {
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    document.getElementById('scroll-progress').style.width = pct + '%';
+  });
+</script>

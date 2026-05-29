@@ -1,40 +1,132 @@
-<style>
-/* change cover_img in config.yml */
-.jumbotron {
-    background-color: var(--main-background-color) !important;
-    background-image: url('/assets/img/{{site.hero_cover_img}}');
-    text-align: center;
-    background-attachment: fixed;
-    background-size: cover;
-    background-position: center;
-}
-.jumbotron-btns {
-  display: block;
-  margin-top: 50px;
-}
+<!-- Full-viewport hero section -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950">
 
-.jumbotron-heading, .lead {
-  color: #fff;
-}
-</style>
-
-<!-- home hero section -->
-<div class="jumbotron">
-  <img class="author-profile-img" src="{{site.url}}{{site.baseurl}}/assets/img/{{site.author_logo}}" />
-  <p class="jumbotron-heading">Hi, I am {{site.author}} !</p>
-
-  <p class="lead" id="typewriteText"></p>
-  <span>
-    {%- include github_star_button.html -%}
-    {%- include github_fork_button.html -%}
-  </span>
-  <!-- uncomment/modify buttons as you want-->
-  <div class="jumbotron-btns">
-    <a href="{{site.url}}{{site.baseurl}}/blog">
-      <button class="btn btn-md btn-warning"> <strong>Blog</strong> </button>
-    </a>
-    <a href="{{site.url}}{{site.baseurl}}/about">
-      <button class="btn btn-md btn-default"> <strong>About me</strong> </button>
-     </a>
+  <!-- Animated grid background -->
+  <div class="absolute inset-0 opacity-20"
+       style="background-image: linear-gradient(rgba(59,130,246,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.3) 1px, transparent 1px); background-size: 60px 60px;">
   </div>
-</div>
+
+  <!-- Glowing orbs -->
+  <div class="absolute top-1/4 -left-32 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl animate-pulse"></div>
+  <div class="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+
+  <!-- Content -->
+  <div class="relative z-10 text-center px-4 py-20 max-w-4xl mx-auto">
+
+    <!-- Profile image with animated ring -->
+    <div class="relative inline-block mb-8">
+      <div class="absolute inset-0 rounded-full bg-gradient-to-r from-brand-400 to-indigo-400 blur-sm opacity-75 scale-110 animate-pulse"></div>
+      <div class="relative w-36 h-36 rounded-full ring-4 ring-brand-400/60 ring-offset-4 ring-offset-slate-900 overflow-hidden shadow-2xl mx-auto">
+        <img src="{{ site.url }}{{ site.baseurl }}/assets/img/{{ site.author_logo }}"
+             alt="{{ site.author }}"
+             class="w-full h-full object-cover" />
+      </div>
+      <!-- Online indicator -->
+      <div class="absolute bottom-2 right-2 w-4 h-4 bg-emerald-400 rounded-full border-2 border-slate-900 shadow-lg"></div>
+    </div>
+
+    <!-- Greeting + name -->
+    <div class="mb-4">
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30 mb-4">
+        <span class="w-2 h-2 bg-emerald-400 rounded-full mr-2 animate-pulse"></span>
+        Available for consulting
+      </span>
+    </div>
+
+    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+      Hi, I'm <span class="bg-gradient-to-r from-brand-400 to-indigo-400 bg-clip-text text-transparent">{{ site.author }}</span>
+    </h1>
+
+    <!-- Typewriter text -->
+    <p class="text-xl sm:text-2xl text-slate-300 font-medium mb-3 min-h-[2rem]" id="typewriteText"></p>
+
+    <!-- Location & experience badge -->
+    <div class="flex flex-wrap items-center justify-center gap-3 mb-8 text-sm text-slate-400">
+      <span class="flex items-center gap-1.5">
+        <i class="fas fa-map-marker-alt text-brand-400"></i>
+        {{ site.author_location }}
+      </span>
+      <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
+      <span class="flex items-center gap-1.5">
+        <i class="fas fa-briefcase text-brand-400"></i>
+        17+ Years IT Experience
+      </span>
+      <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
+      <span class="flex items-center gap-1.5">
+        <i class="fas fa-cloud text-brand-400"></i>
+        DevOps &amp; Cloud Architect
+      </span>
+    </div>
+
+    <!-- Social links -->
+    <div class="flex items-center justify-center gap-4 mb-10">
+      {% if site.github_username %}
+      <a href="https://github.com/{{ site.github_username }}" target="_blank" rel="noopener"
+         class="w-11 h-11 rounded-xl bg-white/10 hover:bg-brand-600 border border-white/10 hover:border-brand-500 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-500/30">
+        <i class="fab fa-github text-lg"></i>
+      </a>
+      {% endif %}
+      {% if site.linkedin_username %}
+      <a href="https://linkedin.com/in/{{ site.linkedin_username }}" target="_blank" rel="noopener"
+         class="w-11 h-11 rounded-xl bg-white/10 hover:bg-blue-600 border border-white/10 hover:border-blue-500 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/30">
+        <i class="fab fa-linkedin-in text-lg"></i>
+      </a>
+      {% endif %}
+      {% if site.twitter_username %}
+      <a href="https://twitter.com/{{ site.twitter_username }}" target="_blank" rel="noopener"
+         class="w-11 h-11 rounded-xl bg-white/10 hover:bg-sky-500 border border-white/10 hover:border-sky-400 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-sky-500/30">
+        <i class="fab fa-twitter text-lg"></i>
+      </a>
+      {% endif %}
+      {% if site.medium_username %}
+      <a href="https://medium.com/@{{ site.medium_username }}" target="_blank" rel="noopener"
+         class="w-11 h-11 rounded-xl bg-white/10 hover:bg-slate-600 border border-white/10 hover:border-slate-400 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+        <i class="fab fa-medium-m text-lg"></i>
+      </a>
+      {% endif %}
+      {% if site.author_email %}
+      <a href="mailto:{{ site.author_email }}"
+         class="w-11 h-11 rounded-xl bg-white/10 hover:bg-emerald-600 border border-white/10 hover:border-emerald-500 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/30">
+        <i class="fas fa-envelope text-lg"></i>
+      </a>
+      {% endif %}
+    </div>
+
+    <!-- CTA buttons -->
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a href="{{ site.url }}{{ site.baseurl }}/blog"
+         class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-8 py-3 rounded-full font-semibold text-sm transition-all duration-200 shadow-xl shadow-brand-600/30 hover:shadow-brand-500/50 hover:-translate-y-0.5">
+        <i class="fas fa-rss text-xs"></i>
+        Read My Blog
+      </a>
+      <a href="{{ site.url }}{{ site.baseurl }}/about"
+         class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 px-8 py-3 rounded-full font-semibold text-sm transition-all duration-200 backdrop-blur-sm hover:-translate-y-0.5">
+        <i class="fas fa-user text-xs"></i>
+        About Me
+      </a>
+      <a href="{{ site.url }}{{ site.baseurl }}/contact"
+         class="inline-flex items-center gap-2 text-slate-400 hover:text-white px-6 py-3 rounded-full font-semibold text-sm transition-all duration-200 hover:-translate-y-0.5">
+        <i class="fas fa-paper-plane text-xs"></i>
+        Get in Touch
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-500">
+    <span class="text-xs tracking-widest uppercase">Scroll</span>
+    <div class="w-6 h-10 rounded-full border-2 border-slate-600 flex justify-center pt-2">
+      <div class="w-1.5 h-1.5 bg-brand-400 rounded-full animate-bounce"></div>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  $(document).ready(function() {
+    $("#typewriteText").typewrite({
+      actions: [{ type: "{{ site.typewrite-text }}" }]
+    });
+  });
+</script>

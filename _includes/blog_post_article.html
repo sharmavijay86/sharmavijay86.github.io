@@ -1,56 +1,94 @@
-<article class="card" itemscope itemtype="http://schema.org/BlogPosting">
-  <div class="card-header">
-    <h1 class="post-title" itemprop="name headline">{{ page.title }}</h1>
-    <h4 class="post-meta">{{ page.summary }}</h4>
-    <p class="post-summary">
-      Posted by : {% if page.author %}
-      <span itemprop="author" itemscope itemtype="http://schema.org/Person">
-        <span itemprop="name"><a href="{{site.url}}{{site.baseurl}}/blog/authors/{{page.author}}">{{ page.author }}</a></span> </span
-      >{% endif %} on
+<article itemscope itemtype="http://schema.org/BlogPosting" class="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700/60 overflow-hidden">
+
+  <!-- Post header -->
+  <div class="p-8 pb-6 border-b border-slate-100 dark:border-slate-700/60">
+
+    <!-- Category & date -->
+    <div class="flex flex-wrap items-center gap-3 mb-4">
+      {% if page.categories %}
+      {% for category in page.categories limit:1 %}
+      <a href="{{ site.baseurl }}/blog/categories/{{ category | slugize }}"
+         class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800/60 hover:bg-brand-200 dark:hover:bg-brand-800/40 transition-colors">
+        <i class="fas fa-folder text-xs mr-1.5"></i>{{ category }}
+      </a>
+      {% endfor %}
+      {% endif %}
       <time datetime="{{ page.date }}" itemprop="datePublished"
-        >{{ page.date | date: "%b %-d, %Y" }}</time
-      >
+            class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+        <i class="fas fa-calendar text-slate-400 dark:text-slate-500"></i>
+        {{ page.date | date: "%B %-d, %Y" }}
+      </time>
+      {% if page.author %}
+      <span class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+        <i class="fas fa-user text-slate-400 dark:text-slate-500"></i>
+        <a href="{{ site.url }}{{ site.baseurl }}/blog/authors/{{ page.author }}"
+           class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors" itemprop="author">
+          {{ page.author }}
+        </a>
+      </span>
+      {% endif %}
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white leading-tight mb-3" itemprop="name headline">
+      {{ page.title }}
+    </h1>
+
+    {% if page.summary %}
+    <p class="text-lg text-slate-500 dark:text-slate-400 leading-relaxed" itemprop="description">
+      {{ page.summary }}
     </p>
-    <span
-      class="disqus-comment-count"
-      data-disqus-identifier="{{ page.url }}"
-    ></span>
-    <div class="post-categories">
-      {% if post %} {% assign categories = post.categories %} {% else %} {%
-      assign categories = page.categories %} {% endif %} Category : {% for
-      category in categories %}
-      <a href="{{site.baseurl}}/blog/categories/{{category|slugize}}"
-        >{{category}}</a
-      >
-      {% unless forloop.last %}&nbsp;{% endunless %} {% endfor %}
+    {% endif %}
+
+  </div>
+
+  <!-- Featured image -->
+  {% if page.thumbnail %}
+  <div class="overflow-hidden">
+    <img class="w-full h-64 sm:h-80 object-cover"
+         src="{{ site.url }}{{ site.baseurl }}{{ page.thumbnail }}"
+         alt="{{ page.title }}"
+         itemprop="image" />
+  </div>
+  {% endif %}
+
+  <!-- Post body -->
+  <div class="p-8 prose-content" itemprop="articleBody">
+    {{ content }}
+  </div>
+
+  <!-- Share bar -->
+  <div class="px-8 pb-8">
+    {%- include share_page.html -%}
+  </div>
+
+  <!-- Author box -->
+  {% assign author_data = site.data.authors[page.author] %}
+  {% if author_data %}
+  <div class="mx-8 mb-8 p-5 rounded-2xl bg-slate-50 dark:bg-slate-700/40 border border-slate-100 dark:border-slate-700/60 flex flex-col sm:flex-row gap-4 items-start">
+    <img src="{{ site.url }}{{ site.baseurl }}/assets/img/authors/vijayk.png"
+         alt="{{ author_data.name }}"
+         class="w-16 h-16 rounded-xl object-cover flex-shrink-0 shadow-sm" />
+    <div class="flex-1">
+      <p class="font-bold text-slate-900 dark:text-white text-sm mb-1">{{ author_data.name }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3">{{ author_data.bio }}</p>
+      <div class="flex gap-2">
+        {% for network in author_data.social %}
+        <a href="{{ network.url }}" target="_blank" rel="noopener"
+           class="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-600 hover:bg-brand-600 dark:hover:bg-brand-600 flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-white transition-all text-xs">
+          <i class="fab fa-{{ network.title }}"></i>
+        </a>
+        {% endfor %}
+      </div>
     </div>
   </div>
+  {% endif %}
 
-  <div class="card-body" itemprop="articleBody">
-    <img
-      class="card-img-top"
-      src="{{site.url}}{{site.baseurl}}{{ page.thumbnail }}"
-      alt="{{ post.title }}"
-    />
-    <br />
-    <br />
-    {{ content }}
-    <br />
-    {%- include share_page.html -%}
-    <!-- Author box -->
-    {% assign author = site.data.authors[page.author] %}
-      {% if author %}
-      {% include author.html %}
-    {% endif %}
-  </div>
+  <!-- Comments -->
   {%- if site.hyvor_talk_website_id -%}
-  <div class="comments">
+  <div class="px-8 pb-8">
     {%- include hyvor_comments.html -%}
-   </div>
-    {%- endif -%}
-  <!-- Incomment incase you want to use Disqus
-      <div id="disqus_thread"></div>
-   -->
-
+  </div>
+  {%- endif -%}
 
 </article>

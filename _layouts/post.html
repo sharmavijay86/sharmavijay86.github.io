@@ -1,42 +1,49 @@
 ---
 layout: default
 ---
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="flex flex-col lg:flex-row gap-8">
 
-<div class="row justify-content-center" id="blog-post-container">
-  <div class="col-lg-10">
-    {%- include blog_post_article.html -%}
-     {%- include blog_post_comments.html-%}
+    <!-- Main article -->
+    <div class="flex-1 min-w-0">
+      {%- include blog_post_article.html -%}
+
+      <!-- Related links row -->
+      <div class="grid sm:grid-cols-2 gap-4 mt-6">
+        <!-- Author card -->
+        <div class="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700/60 p-5 shadow-sm">
+          <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Author</p>
+          <div class="flex items-center gap-3">
+            <img src="{{ site.url }}{{ site.baseurl }}/assets/img/{{ site.author_logo }}"
+                 alt="{{ site.author }}"
+                 class="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+            <div>
+              <p class="font-bold text-slate-900 dark:text-white text-sm">{{ site.author }}</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{{ site.author_bio | truncate: 80 }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick links card -->
+        <div class="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700/60 p-5 shadow-sm">
+          <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Quick Links</p>
+          <ul class="space-y-1.5">
+            {% for i in site.urls %}
+            <li>
+              <a href="{{ site.url }}{{ site.baseurl }}{{ i.url }}"
+                 class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors group">
+                <i class="fas fa-chevron-right text-xs text-slate-300 dark:text-slate-600 group-hover:text-brand-500 transition-colors"></i>
+                {{ i.text }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    {%- include blog_sidebar.html -%}
+
   </div>
 </div>
-<div class="row">
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-header">About {{site.author}}</div>
-      <div class="card-body">
-        <p class="author_bio">{{ site.author_bio }}</p>
-        {%- include github_star_button.html -%}
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-header">Categories</div>
-      <div class="card-body text-dark">
-        {%- include blog_categories.html -%}
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card">
-      <div class="card-header">Useful Links</div>
-      <div class="card-body text-dark">
-        {% for i in site.urls %}
-        <li>
-          <a href="{{ site.url}}{{site.baseurl}}{{ i.url }}">{{ i.text }}</a>
-        </li>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-</div>
-

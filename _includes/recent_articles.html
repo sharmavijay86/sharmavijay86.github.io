@@ -1,44 +1,67 @@
-<section id="recent-articles">
-  <div id="recent-articles-header">
-    <div id="recent-articles-title">
-      <h1 class="card-title">Recent Articles</h1>
-    </div>
-    <div id="recent-articles-show-all">
-      <a class="btn btn-lg btn-dark" href="/blog"> View All </a>
-    </div>
-  </div>
-  <br />
+<!-- Recent Articles section -->
+<section class="py-16">
+  <div class="max-w-4xl mx-auto px-4">
 
-  <ul>
-    {% for post in site.posts limit:5 %}
-    <li class="article-card">
-      <a href="{{post.url}}" class="article-card-link">
-        <div id="article-container">
-          <div id="article-img">
-            {% if post.author %}
-              {% assign author = post.author %}
-              {% if author %}
-               {% assign author_data = site.data.authors[author] %}
-               <img
-                src="{{site.url}}{{site.baseurl}}/assets/img/authors/vijayk.png"
-                width="50px"
-                height="50px"
-             />
-              {% endif %}
-            {% endif %}
-
-          </div>
-          <div id="article-link">
-              <p class="recent-article-link">{{post.title}} <span style="color: #ccc; font-size: 15px;"> - <i><time datetime="{{ post.date }}" itemprop="datePublished">{{ post.date | date: "%b %-d, %Y" }}</time></i></span></p>
-            </div>
-            <div id="article-alert">
-            {% for cat in post.category limit:1 %}
-             <button class="btn btn-sm btn-dark">{{cat}}</button>
-            {% endfor %}
-            </div>
-        </div>
+    <!-- Section header -->
+    <div class="flex items-center justify-between mb-10">
+      <div>
+        <span class="text-brand-600 dark:text-brand-400 text-sm font-semibold uppercase tracking-wider">Latest</span>
+        <h2 class="text-3xl font-bold text-slate-900 dark:text-white mt-1">Recent Articles</h2>
+      </div>
+      <a href="{{ site.url }}{{ site.baseurl }}/blog"
+         class="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 border border-brand-200 dark:border-brand-800 hover:bg-brand-50 dark:hover:bg-brand-900/20 px-4 py-2 rounded-full transition-all duration-150">
+        View all
+        <i class="fas fa-arrow-right text-xs"></i>
       </a>
-    </li>
-    {% endfor %}
-  </ul>
+    </div>
+
+    <!-- Article list -->
+    <div class="space-y-4">
+      {% for post in site.posts limit:5 %}
+      <article class="group">
+        <a href="{{ post.url }}" class="flex items-start gap-4 p-5 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 hover:border-brand-200 dark:hover:border-brand-700/60 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-all duration-200 no-underline">
+
+          <!-- Author avatar -->
+          <div class="flex-shrink-0 w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-br from-brand-400 to-indigo-500 flex items-center justify-center shadow-sm">
+            {% if post.author %}
+            <img src="{{ site.url }}{{ site.baseurl }}/assets/img/authors/vijayk.png"
+                 alt="{{ post.author }}"
+                 class="w-full h-full object-cover"
+                 onerror="this.style.display='none'" />
+            {% else %}
+            <i class="fas fa-user text-white text-sm"></i>
+            {% endif %}
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1.5">
+              {% for cat in post.category limit:1 %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-100 dark:bg-brand-900/40 text-brand-700 dark:text-brand-300">
+                {{ cat }}
+              </span>
+              {% endfor %}
+              <time class="text-xs text-slate-400 dark:text-slate-500">
+                {{ post.date | date: "%b %-d, %Y" }}
+              </time>
+            </div>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors duration-150 leading-snug">
+              {{ post.title }}
+            </h3>
+            {% if post.summary %}
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">{{ post.summary }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Arrow -->
+          <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-slate-300 dark:text-slate-600 group-hover:text-brand-500 group-hover:bg-brand-50 dark:group-hover:bg-brand-900/20 transition-all duration-150">
+            <i class="fas fa-arrow-right text-xs"></i>
+          </div>
+
+        </a>
+      </article>
+      {% endfor %}
+    </div>
+
+  </div>
 </section>

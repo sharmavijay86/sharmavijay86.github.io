@@ -1,18 +1,148 @@
 ---
 layout: default
 ---
-</div>
-<div class="container">
-    <div class="row d-flex justify-content-center">
-        <div class="col-10 m10">
-            <div class="card">
-                <h1 class="card-title"> Contact me </h1>
-                <!-- Replace with contact-getform or contact-formspree -->
-                    {%- include contact-getform.html -%}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <!-- Page header -->
+  <div class="mb-10">
+    <span class="text-brand-600 dark:text-brand-400 text-sm font-semibold uppercase tracking-wider">Get in Touch</span>
+    <h1 class="text-4xl font-extrabold text-slate-900 dark:text-white mt-1">Contact Me</h1>
+    <p class="text-slate-500 dark:text-slate-400 mt-2">Have a project, collaboration, or just want to say hello?</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <!-- Contact info -->
+    <div class="space-y-4">
+
+      <!-- Info card -->
+      <div class="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700/60 p-6 shadow-sm">
+        <img src="{{ site.url }}{{ site.baseurl }}/assets/img/{{ site.author_logo }}"
+             alt="{{ site.author }}"
+             class="w-20 h-20 rounded-2xl object-cover shadow-md mb-4" />
+        <h2 class="font-bold text-slate-900 dark:text-white mb-1">{{ site.author }}</h2>
+        <p class="text-slate-500 dark:text-slate-400 text-sm mb-5">DevOps &amp; Cloud Architect. 17+ years of IT experience.</p>
+
+        <div class="space-y-3">
+          {% if site.author_email %}
+          <a href="mailto:{{ site.author_email }}"
+             class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40 hover:bg-brand-50 dark:hover:bg-brand-900/20 border border-transparent hover:border-brand-100 dark:hover:border-brand-800/40 transition-all group">
+            <div class="w-9 h-9 bg-brand-100 dark:bg-brand-900/40 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-brand-600 transition-colors">
+              <i class="fas fa-envelope text-brand-600 dark:text-brand-400 text-xs group-hover:text-white transition-colors"></i>
             </div>
+            <div class="min-w-0">
+              <p class="text-xs text-slate-400 dark:text-slate-500">Email</p>
+              <p class="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">{{ site.author_email }}</p>
+            </div>
+          </a>
+          {% endif %}
+
+          {% if site.author_location %}
+          <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40">
+            <div class="w-9 h-9 bg-brand-100 dark:bg-brand-900/40 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-map-marker-alt text-brand-600 dark:text-brand-400 text-xs"></i>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 dark:text-slate-500">Location</p>
+              <p class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ site.author_location }}</p>
+            </div>
+          </div>
+          {% endif %}
+
+          {% if site.author_website_url %}
+          <a href="{{ site.author_website_url }}" target="_blank" rel="noopener"
+             class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40 hover:bg-brand-50 dark:hover:bg-brand-900/20 border border-transparent hover:border-brand-100 dark:hover:border-brand-800/40 transition-all group">
+            <div class="w-9 h-9 bg-brand-100 dark:bg-brand-900/40 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-brand-600 transition-colors">
+              <i class="fas fa-globe text-brand-600 dark:text-brand-400 text-xs group-hover:text-white transition-colors"></i>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400 dark:text-slate-500">Website</p>
+              <p class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ site.author_website_url | remove: 'https://' }}</p>
+            </div>
+          </a>
+          {% endif %}
         </div>
+      </div>
+
+      <!-- Social links -->
+      <div class="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700/60 p-5 shadow-sm">
+        <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Connect</p>
+        <div class="grid grid-cols-4 gap-2">
+          {% if site.github_username %}
+          <a href="https://github.com/{{ site.github_username }}" target="_blank" rel="noopener"
+             class="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40 hover:bg-brand-600 group transition-colors">
+            <i class="fab fa-github text-slate-600 dark:text-slate-300 group-hover:text-white text-lg transition-colors"></i>
+            <span class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-white/80 transition-colors">GitHub</span>
+          </a>
+          {% endif %}
+          {% if site.linkedin_username %}
+          <a href="https://linkedin.com/in/{{ site.linkedin_username }}" target="_blank" rel="noopener"
+             class="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40 hover:bg-blue-600 group transition-colors">
+            <i class="fab fa-linkedin-in text-slate-600 dark:text-slate-300 group-hover:text-white text-lg transition-colors"></i>
+            <span class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-white/80 transition-colors">LinkedIn</span>
+          </a>
+          {% endif %}
+          {% if site.twitter_username %}
+          <a href="https://twitter.com/{{ site.twitter_username }}" target="_blank" rel="noopener"
+             class="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40 hover:bg-sky-500 group transition-colors">
+            <i class="fab fa-twitter text-slate-600 dark:text-slate-300 group-hover:text-white text-lg transition-colors"></i>
+            <span class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-white/80 transition-colors">Twitter</span>
+          </a>
+          {% endif %}
+          {% if site.medium_username %}
+          <a href="https://medium.com/@{{ site.medium_username }}" target="_blank" rel="noopener"
+             class="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40 hover:bg-slate-600 group transition-colors">
+            <i class="fab fa-medium-m text-slate-600 dark:text-slate-300 group-hover:text-white text-lg transition-colors"></i>
+            <span class="text-xs text-slate-500 dark:text-slate-400 group-hover:text-white/80 transition-colors">Medium</span>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
     </div>
+
+    <!-- Contact form -->
+    <div class="lg:col-span-2">
+      <div class="bg-white dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700/60 p-8 shadow-sm">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-6">Send a Message</h2>
+        <form action="https://getform.io/f/{{ site.getform_endpoint }}" method="POST" class="space-y-5">
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div>
+              <label for="contact_name" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Your Name</label>
+              <input type="text" id="contact_name" name="name" required
+                     placeholder="John Doe"
+                     class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all text-sm" />
+            </div>
+            <div>
+              <label for="contact_email" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Your Email</label>
+              <input type="email" id="contact_email" name="email" required
+                     placeholder="john@example.com"
+                     class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all text-sm" />
+            </div>
+          </div>
+
+          <div>
+            <label for="contact_subject" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Subject</label>
+            <input type="text" id="contact_subject" name="subject"
+                   placeholder="How can I help you?"
+                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all text-sm" />
+          </div>
+
+          <div>
+            <label for="contact_message" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Message</label>
+            <textarea id="contact_message" name="message" rows="6" required
+                      placeholder="Tell me about your project, question, or just say hello..."
+                      class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all text-sm resize-none"></textarea>
+          </div>
+
+          <button type="submit"
+                  class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold px-8 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-brand-600/20 hover:shadow-brand-600/40 hover:-translate-y-0.5 text-sm">
+            <i class="fas fa-paper-plane text-xs"></i>
+            Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
 </div>
-
-
-
