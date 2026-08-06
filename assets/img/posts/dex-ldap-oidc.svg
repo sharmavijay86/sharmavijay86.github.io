@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" width="1200" height="480" role="img" aria-label="Dex bridging an LDAP directory to OpenID Connect for a Flask app">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b0f1a"/>
+      <stop offset="55%" stop-color="#150f2e"/>
+      <stop offset="100%" stop-color="#1a1330"/>
+    </linearGradient>
+    <linearGradient id="flow2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="50%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <filter id="soft2" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="18" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="480" fill="url(#bg2)"/>
+  <g stroke="#241f3d" stroke-width="1" opacity="0.5">
+    <path d="M0 60H1200M0 120H1200M0 180H1200M0 240H1200M0 300H1200M0 360H1200M0 420H1200"/>
+    <path d="M60 0V480M180 0V480M300 0V480M420 0V480M540 0V480M660 0V480M780 0V480M900 0V480M1020 0V480M1140 0V480"/>
+  </g>
+  <circle cx="170" cy="400" r="165" fill="#f59e0b" opacity="0.12" filter="url(#soft2)"/>
+  <circle cx="1030" cy="105" r="165" fill="#38bdf8" opacity="0.13" filter="url(#soft2)"/>
+
+  <text x="600" y="64" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="34" font-weight="800" fill="#f8fafc">Dex + LDAP &#8594; OpenID Connect</text>
+  <text x="600" y="99" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="19" font-weight="500" fill="#94a3b8">One directory, any modern app, zero password sharing</text>
+
+  <!-- LDAP -->
+  <g transform="translate(90,168)">
+    <rect x="0" y="0" width="240" height="146" rx="20" fill="#1c1710" stroke="#78350f" stroke-width="1.5"/>
+    <g transform="translate(34,34)" fill="none" stroke="#fcd34d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M26 6 L46 16 V38 L26 48 L6 38 V16 Z"/>
+      <circle cx="26" cy="27" r="7" fill="#fcd34d" stroke="none"/>
+    </g>
+    <text x="104" y="50" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">LDAP</text>
+    <text x="104" y="76" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">directory</text>
+    <rect x="34" y="102" width="172" height="28" rx="8" fill="#100d08" stroke="#78350f"/>
+    <text x="120" y="121" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="#fcd34d">uid=fry</text>
+  </g>
+
+  <!-- middle: Dex -->
+  <g transform="translate(360,180)">
+    <path d="M0 61 H120" stroke="url(#flow2)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="10 8"/>
+    <polygon points="120,55 134,61 120,67" fill="#a78bfa"/>
+    <text x="62" y="43" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="#94a3b8">bind</text>
+
+    <g transform="translate(146,4)">
+      <rect x="0" y="0" width="188" height="114" rx="18" fill="#150f2e" stroke="#8b5cf6" stroke-width="2"/>
+      <text x="94" y="42" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="19" font-weight="800" fill="#c4b5fd">Dex</text>
+      <rect x="26" y="60" width="136" height="26" rx="8" fill="#0f0a24" stroke="#5b21b6"/>
+      <text x="94" y="78" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#e9d5ff">OIDC provider</text>
+      <text x="94" y="102" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#a78bfa">issues ID tokens</text>
+    </g>
+
+    <path d="M348 61 H468" stroke="url(#flow2)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="10 8"/>
+    <polygon points="468,55 482,61 468,67" fill="#38bdf8"/>
+    <text x="410" y="43" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="#94a3b8">id_token</text>
+  </g>
+
+  <!-- Flask app -->
+  <g transform="translate(866,168)">
+    <rect x="0" y="0" width="244" height="146" rx="20" fill="#0c1420" stroke="#334155" stroke-width="1.5"/>
+    <g transform="translate(30,30)" fill="none" stroke="#7dd3fc" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 52 V16 L44 4 V40 Z"/>
+      <path d="M4 30 H36"/>
+    </g>
+    <text x="116" y="52" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Flask</text>
+    <text x="116" y="78" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">web app</text>
+    <rect x="30" y="102" width="184" height="28" rx="8" fill="#080e18" stroke="#334155"/>
+    <text x="122" y="121" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="#7dd3fc">"Hello, fry!"</text>
+  </g>
+
+  <g transform="translate(432,344)">
+    <rect x="0" y="0" width="336" height="46" rx="23" fill="#1c1710" stroke="#a16207" stroke-width="1.5"/>
+    <circle cx="31" cy="23" r="8.5" fill="#f59e0b"/>
+    <path d="M27.3 23l3 3 5.6-6.2" stroke="#1c1710" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="54" y="29" font-family="Inter,system-ui,sans-serif" font-size="16" font-weight="700" fill="#fcd34d">docker compose up — that's the setup</text>
+  </g>
+</svg>
