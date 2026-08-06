@@ -3,7 +3,7 @@ layout: post
 title:  "Keyless GitHub Actions on GCP: Workload Identity Federation End to End"
 summary: "A complete, practical walkthrough of Workload Identity Federation between GitHub Actions and Google Cloud — architecture, gcloud CLI and Console setup, the GitHub org/repo changes nobody documents, principalSet IAM bindings, and working workflows for both Direct WIF and service account impersonation."
 author: vijay
-date: '2026-08-06 11:15:00 +0530'
+date: '2026-08-06 07:30:00 +0530'
 category: gcp
 thumbnail: /assets/img/posts/gcp-wif-github.svg
 keywords: workload identity federation, github actions, gcp, oidc, keyless authentication, google-github-actions/auth, principalSet, service account impersonation
