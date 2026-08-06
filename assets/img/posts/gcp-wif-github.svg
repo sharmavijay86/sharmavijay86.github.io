@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" width="1200" height="480" role="img" aria-label="GitHub Actions authenticating to Google Cloud with Workload Identity Federation, no service account keys">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="55%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#111f3d"/>
+    </linearGradient>
+    <linearGradient id="gcpArc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4285F4"/>
+      <stop offset="33%" stop-color="#EA4335"/>
+      <stop offset="66%" stop-color="#FBBC05"/>
+      <stop offset="100%" stop-color="#34A853"/>
+    </linearGradient>
+    <linearGradient id="flow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#34A853"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="18" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="480" fill="url(#bg)"/>
+
+  <!-- faint grid -->
+  <g stroke="#1e293b" stroke-width="1" opacity="0.5">
+    <path d="M0 60H1200M0 120H1200M0 180H1200M0 240H1200M0 300H1200M0 360H1200M0 420H1200"/>
+    <path d="M60 0V480M180 0V480M300 0V480M420 0V480M540 0V480M660 0V480M780 0V480M900 0V480M1020 0V480M1140 0V480"/>
+  </g>
+  <circle cx="170" cy="400" r="165" fill="#1d4ed8" opacity="0.14" filter="url(#soft)"/>
+  <circle cx="1030" cy="105" r="165" fill="#34A853" opacity="0.13" filter="url(#soft)"/>
+
+  <!-- ── Title block ── -->
+  <text x="600" y="64" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="36" font-weight="800" fill="#f8fafc">Workload Identity Federation</text>
+  <text x="600" y="99" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="19" font-weight="500" fill="#94a3b8">GitHub Actions &#8594; Google Cloud, keyless</text>
+
+  <!-- ── LEFT: GitHub Actions runner ── -->
+  <g transform="translate(90,168)">
+    <rect x="0" y="0" width="240" height="146" rx="20" fill="#111827" stroke="#334155" stroke-width="1.5"/>
+    <!-- abstract runner / cog -->
+    <g transform="translate(34,34)" fill="none" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round">
+      <circle cx="26" cy="26" r="20"/>
+      <circle cx="26" cy="26" r="7" fill="#e2e8f0" stroke="none"/>
+      <path d="M26 0v8M26 44v8M0 26h8M44 26h8M8 8l6 6M38 38l6 6M44 8l-6 6M14 38l-6 6"/>
+    </g>
+    <text x="104" y="50" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">GitHub</text>
+    <text x="104" y="76" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Actions</text>
+    <rect x="34" y="102" width="172" height="28" rx="8" fill="#0b1220" stroke="#334155"/>
+    <text x="120" y="121" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="#7dd3fc">id-token: write</text>
+  </g>
+
+  <!-- ── MIDDLE: OIDC token → STS exchange ── -->
+  <g transform="translate(360,180)">
+    <path d="M0 61 H120" stroke="url(#flow)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="10 8"/>
+    <polygon points="120,55 134,61 120,67" fill="#818cf8"/>
+    <text x="62" y="43" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="#94a3b8">OIDC JWT</text>
+
+    <g transform="translate(146,4)">
+      <rect x="0" y="0" width="188" height="114" rx="18" fill="#0b1220" stroke="#4285F4" stroke-width="2"/>
+      <text x="94" y="35" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="15" font-weight="700" fill="#93c5fd">Identity Pool</text>
+      <text x="94" y="59" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="15" font-weight="700" fill="#93c5fd">+ OIDC Provider</text>
+      <rect x="26" y="74" width="136" height="26" rx="8" fill="#0f172a" stroke="#1e40af"/>
+      <text x="94" y="92" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="12" fill="#67e8f9">STS exchange</text>
+    </g>
+
+    <path d="M348 61 H468" stroke="url(#flow)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="10 8"/>
+    <polygon points="468,55 482,61 468,67" fill="#34A853"/>
+    <text x="410" y="43" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="#94a3b8">access token</text>
+  </g>
+
+  <!-- ── RIGHT: Google Cloud ── -->
+  <g transform="translate(866,168)">
+    <rect x="0" y="0" width="244" height="146" rx="20" fill="#111827" stroke="#334155" stroke-width="1.5"/>
+    <!-- abstract cloud mark -->
+    <g transform="translate(30,45)">
+      <path d="M14 40a20 20 0 0 1 3-39 26 26 0 0 1 47 8 17 17 0 0 1-4 33z" fill="none" stroke="url(#gcpArc)" stroke-width="5" stroke-linejoin="round"/>
+    </g>
+    <text x="116" y="52" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Google</text>
+    <text x="116" y="78" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="700" fill="#f8fafc">Cloud</text>
+    <rect x="30" y="102" width="184" height="28" rx="8" fill="#0b1220" stroke="#334155"/>
+    <text x="122" y="121" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" fill="#86efac">principalSet://</text>
+  </g>
+
+  <!-- ── Bottom badge ── -->
+  <g transform="translate(432,382)">
+    <rect x="0" y="0" width="336" height="46" rx="23" fill="#052e16" stroke="#166534" stroke-width="1.5"/>
+    <circle cx="31" cy="23" r="8.5" fill="#22c55e"/>
+    <path d="M27.3 23l3 3 5.6-6.2" stroke="#052e16" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="54" y="29" font-family="Inter,system-ui,sans-serif" font-size="16" font-weight="700" fill="#86efac">Zero long-lived service account keys</text>
+  </g>
+</svg>
